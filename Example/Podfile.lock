@@ -1,0 +1,16 @@
+PODS:
+  - SFSandbox (0.1.0)
+
+DEPENDENCIES:
+  - SFSandbox (from `../`)
+
+EXTERNAL SOURCES:
+  SFSandbox:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  SFSandbox: 88b021b13be0fa66d19f774323f53e4d04df02dd
+
+PODFILE CHECKSUM: 028f6b18a128b9eb8fbee5e1cd9378481834c8e9
+
+COCOAPODS: 1.10.1
