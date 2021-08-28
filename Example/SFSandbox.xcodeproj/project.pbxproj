@@ -29,7 +29,7 @@
 
 /* Begin PBXFileReference section */
 		04BB2E9130A00D96D416B62B /* Pods-SFSandbox_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SFSandbox_Example.debug.xcconfig"; path = "Target Support Files/Pods-SFSandbox_Example/Pods-SFSandbox_Example.debug.xcconfig"; sourceTree = "<group>"; };
-		1CC1523C3A53166210AA626A /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		1CC1523C3A53166210AA626A /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		1F75019F147C6B55EC234024 /* Pods_SFSandbox_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SFSandbox_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3304D51940DDB7338E992671 /* Pods_SFSandbox_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SFSandbox_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD01AFB9204008FA782 /* SFSandbox_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SFSandbox_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -44,9 +44,9 @@
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
 		69FB8B988EC5F2882121B195 /* Pods-SFSandbox_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SFSandbox_Tests.debug.xcconfig"; path = "Target Support Files/Pods-SFSandbox_Tests/Pods-SFSandbox_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		7105FF9E7B5B54B9B70C1443 /* Pods-SFSandbox_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SFSandbox_Tests.release.xcconfig"; path = "Target Support Files/Pods-SFSandbox_Tests/Pods-SFSandbox_Tests.release.xcconfig"; sourceTree = "<group>"; };
-		76E7C24B01CA232FCD6FF3FB /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		76E7C24B01CA232FCD6FF3FB /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		8E780E3B0233F2C10FFD566F /* Pods-SFSandbox_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SFSandbox_Example.release.xcconfig"; path = "Target Support Files/Pods-SFSandbox_Example/Pods-SFSandbox_Example.release.xcconfig"; sourceTree = "<group>"; };
-		DB9B035261B135437C0160AA /* SFSandbox.podspec */ = {isa = PBXFileReference; includeInIndex = 1; name = SFSandbox.podspec; path = ../SFSandbox.podspec; sourceTree = "<group>"; };
+		DB9B035261B135437C0160AA /* SFSandbox.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SFSandbox.podspec; path = ../SFSandbox.podspec; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,7 +156,6 @@
 				69FB8B988EC5F2882121B195 /* Pods-SFSandbox_Tests.debug.xcconfig */,
 				7105FF9E7B5B54B9B70C1443 /* Pods-SFSandbox_Tests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -227,6 +226,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -313,11 +313,19 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SFSandbox_Example/Pods-SFSandbox_Example-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
+				"${BUILT_PRODUCTS_DIR}/RxRelay/RxRelay.framework",
+				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/SFSandbox/SFSandbox.framework",
+				"${BUILT_PRODUCTS_DIR}/SnapKit/SnapKit.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxRelay.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SFSandbox.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SnapKit.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -419,7 +427,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -465,7 +473,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";

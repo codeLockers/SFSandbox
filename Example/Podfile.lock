@@ -1,16 +1,37 @@
 PODS:
-  - SFSandbox (0.1.0)
+  - RxCocoa (6.2.0):
+    - RxRelay (= 6.2.0)
+    - RxSwift (= 6.2.0)
+  - RxRelay (6.2.0):
+    - RxSwift (= 6.2.0)
+  - RxSwift (6.2.0)
+  - SFSandbox (0.1.0):
+    - RxCocoa (= 6.2.0)
+    - RxSwift (= 6.2.0)
+    - SnapKit (= 5.0.1)
+  - SnapKit (5.0.1)
 
 DEPENDENCIES:
   - SFSandbox (from `../`)
+
+SPEC REPOS:
+  trunk:
+    - RxCocoa
+    - RxRelay
+    - RxSwift
+    - SnapKit
 
 EXTERNAL SOURCES:
   SFSandbox:
     :path: "../"
 
 SPEC CHECKSUMS:
-  SFSandbox: 88b021b13be0fa66d19f774323f53e4d04df02dd
+  RxCocoa: 4baf94bb35f2c0ab31bc0cb9f1900155f646ba42
+  RxRelay: e72dbfd157807478401ef1982e1c61c945c94b2f
+  RxSwift: d356ab7bee873611322f134c5f9ef379fa183d8f
+  SFSandbox: 35e91f4606b5d06b8825bc47791b333117b79e38
+  SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
 
-PODFILE CHECKSUM: 028f6b18a128b9eb8fbee5e1cd9378481834c8e9
+PODFILE CHECKSUM: 01f28307547eb74e2c7428c2ae14ec9f7d7b7d88
 
 COCOAPODS: 1.10.1
