@@ -21,4 +21,16 @@ class SFFlieListViewModel {
         let items = SFFileManager.shared.listItems(at: path) ?? []
         itemsRelay.accept(items)
     }
+
+    func createDirectory(_ name: String) {
+        guard let path = self.path, !path.isEmpty else { return }
+        SFFileManager.shared.createDirectory(at: path.addPathComponent(name))
+        refresh()
+    }
+
+    func createFile(_ name: String, suffix: String) {
+        guard let path = self.path, !path.isEmpty else { return }
+        SFFileManager.shared.createFile(at: path.addPathComponent(name).addSuffix(suffix))
+        refresh()
+    }
 }

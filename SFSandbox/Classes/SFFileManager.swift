@@ -120,12 +120,29 @@ public class SFFileManager {
                            attributeType: type(at: filePath))
             }
     }
+
+    @discardableResult
+    public func createDirectory(at path: String) -> Bool {
+        do {
+            try fileManager.createDirectory(at: URL(fileURLWithPath: path), withIntermediateDirectories: true, attributes: nil)
+            return true
+        } catch { return false }
+    }
+
+    @discardableResult
+    public func createFile(at path: String) -> Bool {
+        return fileManager.createFile(atPath: path, contents: nil, attributes: nil)
+    }
 }
 
 extension String {
     public func addPathComponent(_ path: String?) -> String {
         guard let path = path, !path.isEmpty else { return self }
         return self + "/" + path
+    }
+
+    public func addSuffix(_ suffix: String) -> String {
+        return self + "." + suffix
     }
 }
 

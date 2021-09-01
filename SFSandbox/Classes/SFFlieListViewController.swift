@@ -50,6 +50,15 @@ class SFFlieListViewController: UIViewController {
         return button
     }()
 
+    private lazy var createButton: UIButton = {
+        let button = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 0)
+        button.setTitle("新建", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 13)
+        return button
+    }()
+
     private let disposeBag = DisposeBag()
     private let viewModel: SFFlieListViewModel
     private let dismissStyle: DismissStyle
@@ -68,6 +77,7 @@ class SFFlieListViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: dismissButton)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: createButton)
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -89,6 +99,9 @@ class SFFlieListViewController: UIViewController {
             case .pop:
                 self.navigationController?.popViewController(animated: true)
             }
+        }.disposed(by: disposeBag)
+        createButton.rx.tap.bind { [weak self] in
+            self?.triggerCreateFileSheet()
         }.disposed(by: disposeBag)
         viewModel.itemsRelay.bind(to: tableView.rx.items) { (tableView, _, element) in
             guard let cell = tableView.dequeueReusableCell(withIdentifier: SFFileCell.reuseIdentifier) as? SFFileCell
@@ -116,5 +129,58 @@ class SFFlieListViewController: UIViewController {
     private func routeToDirectory(_ directory: SFFileManager.SFFileItem) {
         let fileListVc = SFFlieListViewController(path: directory.path, dismissStyle: .pop)
         navigationController?.pushViewController(fileListVc, animated: true)
+    }
+}
+
+extension SFFlieListViewController {
+    private func triggerCreateFileSheet() {
+        let supportFiles: [SFFileManager.SFFileSuffix] = [.directory, .json, .txt]
+        let sheetVc = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        let cancelAction = UIAlertAction(title: "取消", style: .cancel, handler: nil)
+        sheetVc.addAction(cancelAction)
+        let fileName: ((SFFileManager.SFFileSuffix) -> String) = { type in
+            switch type {
+            case .directory:
+                return "文件夹"
+            case .json:
+                return "json"
+            case .txt:
+                return "txt"
+            case .excel, .file, .gif, .image, .pdf, .video, .word, .zip:
+                return ""
+            }
+        }
+        let action: ((SFFileManager.SFFileSuffix) -> Void) = { type in
+            self.triggerInputNameAlert(type, name: fileName(type))
+        }
+        supportFiles.forEach { type in
+            let action = UIAlertAction(title: fileName(type), style: .default) { _ in
+                action(type)
+            }
+            sheetVc.addAction(action)
+        }
+        present(sheetVc, animated: true, completion: nil)
+    }
+
+    private func triggerInputNameAlert(_ type: SFFileManager.SFFileSuffix, name: String) {
+        let alertVc = UIAlertController(title: "输入\(name)名称", message: nil, preferredStyle: .alert)
+        alertVc.addTextField { _ in }
+        present(alertVc, animated: true, completion: nil)
+        let cancelAction = UIAlertAction(title: "取消", style: .cancel, handler: nil)
+        alertVc.addAction(cancelAction)
+        let confirmAction = UIAlertAction(title: "确定", style: .default) { [weak self] _ in
+            guard let name = alertVc.textFields?.first?.text, !name.isEmpty else { return }
+            switch type {
+            case .directory:
+                self?.viewModel.createDirectory(name)
+            case .txt:
+                self?.viewModel.createFile(name, suffix: "txt")
+            case .json:
+                self?.viewModel.createFile(name, suffix: "json")
+            case .excel, .file, .gif, .image, .pdf, .video, .word, .zip:
+                break
+            }
+        }
+        alertVc.addAction(confirmAction)
     }
 }
