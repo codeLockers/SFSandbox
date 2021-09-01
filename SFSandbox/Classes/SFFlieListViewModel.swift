@@ -17,7 +17,7 @@ class SFFlieListViewModel {
         self.path = path
     }
 
-    func fetchSandboxItems() {
+    func refresh() {
         let items = SFFileManager.shared.listItems(at: path) ?? []
         itemsRelay.accept(items)
     }

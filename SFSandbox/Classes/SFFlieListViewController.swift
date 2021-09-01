@@ -72,9 +72,12 @@ class SFFlieListViewController: UIViewController {
         tableView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-
         handleRxBindings()
-        viewModel.fetchSandboxItems()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.refresh()
     }
 
     private func handleRxBindings() {

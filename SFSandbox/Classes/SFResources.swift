@@ -21,6 +21,9 @@ struct SFResources {
         case word
         case excel
         case zip
+        case gif
+        case json
+        case txt
 
         var filename: String {
             switch self {
@@ -44,6 +47,12 @@ struct SFResources {
                 return "sf_sandbox_excel"
             case .zip:
                 return "sf_sandbox_zip"
+            case .gif:
+                return "sf_sandbox_gif"
+            case .json:
+                return "sf_sandbox_json"
+            case .txt:
+                return "sf_sandbox_txt"
             }
         }
     }

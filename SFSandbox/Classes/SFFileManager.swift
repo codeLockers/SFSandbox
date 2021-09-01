@@ -41,7 +41,7 @@ extension SFFileManager {
         var suffix: SFFileSuffix {
             if attributeType == .typeDirectory { return .directory }
             guard let suffix = suffixName, !suffix.isEmpty else { return .file }
-            if suffix == "png" || suffix == "jpg" || suffix == "jpeg" {
+            if suffix == "png" || suffix == "jpg" || suffix == "jpeg" || suffix == "HEIC" {
                 return .image
             } else if suffix == "pdf" {
                 return .pdf
@@ -53,6 +53,12 @@ extension SFFileManager {
                 return .excel
             } else if suffix == "zip" {
                 return .zip
+            } else if suffix == "gif" {
+                return .gif
+            } else if suffix == "json" {
+                return .json
+            } else if suffix == "txt" {
+                return .txt
             } else {
                 return .file
             }
@@ -68,6 +74,9 @@ extension SFFileManager {
         case word
         case excel
         case zip
+        case gif
+        case json
+        case txt
     }
 }
 

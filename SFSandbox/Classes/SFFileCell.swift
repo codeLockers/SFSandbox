@@ -75,6 +75,12 @@ class SFFileCell: UITableViewCell {
                 fileImageView.image = SFResources.image(.excel)
             case .zip:
                 fileImageView.image = SFResources.image(.zip)
+            case .gif:
+                fileImageView.image = SFResources.image(.gif)
+            case .json:
+                fileImageView.image = SFResources.image(.json)
+            case .txt:
+                fileImageView.image = SFResources.image(.txt)
         }
         nameLabel.text = file.name
         sizeLabel.text = file.size.fileSizeFormatter()
