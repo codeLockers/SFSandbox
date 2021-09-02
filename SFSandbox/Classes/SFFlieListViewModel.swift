@@ -12,7 +12,8 @@ import RxCocoa
 class SFFlieListViewModel {
     private let path: String?
     let itemsRelay = BehaviorRelay<[SFFileManager.SFFileItem]>(value: [])
-
+    var items: [SFFileManager.SFFileItem] { itemsRelay.value }
+    
     init(path: String?) {
         self.path = path
     }
@@ -32,5 +33,13 @@ class SFFlieListViewModel {
         guard let path = self.path, !path.isEmpty else { return }
         SFFileManager.shared.createFile(at: path.addPathComponent(name).addSuffix(suffix))
         refresh()
+    }
+
+    func deleteFile(_ file: SFFileManager.SFFileItem) {
+        let result = SFFileManager.shared.delete(at: file.path)
+        if !result { return }
+        var items = items
+        items.removeAll(where: { $0.path == file.path })
+        itemsRelay.accept(items)
     }
 }

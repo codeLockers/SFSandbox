@@ -111,6 +111,7 @@ class SFFlieListViewController: UIViewController {
             cell.render(element)
             return cell
         }.disposed(by: disposeBag)
+        tableView.rx.setDelegate(self).disposed(by: disposeBag)
         tableView.rx.itemSelected.bind { [weak self] indexPath in
             guard let fileItem = self?.viewModel.itemsRelay.value[indexPath.row] else { return }
             self?.route(to: fileItem)
@@ -129,6 +130,19 @@ class SFFlieListViewController: UIViewController {
     private func routeToDirectory(_ directory: SFFileManager.SFFileItem) {
         let fileListVc = SFFlieListViewController(path: directory.path, dismissStyle: .pop)
         navigationController?.pushViewController(fileListVc, animated: true)
+    }
+}
+
+extension SFFlieListViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: "删除") { [viewModel] _, _, _ in
+            viewModel.deleteFile(viewModel.items[indexPath.row])
+        }
+        let renameAction = UIContextualAction(style: .normal, title: "重命名") { _, _, _ in
+
+        }
+        renameAction.backgroundColor = .blue
+        return UISwipeActionsConfiguration(actions: [deleteAction, renameAction])
     }
 }
 

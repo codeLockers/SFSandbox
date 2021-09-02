@@ -133,6 +133,14 @@ public class SFFileManager {
     public func createFile(at path: String) -> Bool {
         return fileManager.createFile(atPath: path, contents: nil, attributes: nil)
     }
+
+    @discardableResult
+    public func delete(at path: String) -> Bool {
+        do {
+            try fileManager.removeItem(atPath: path)
+            return true
+        } catch { return false }
+    }
 }
 
 extension String {
