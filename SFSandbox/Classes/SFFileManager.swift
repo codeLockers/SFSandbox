@@ -36,6 +36,7 @@ extension SFFileManager {
         let name: String
         let size: Int
         let attributeType: FileAttributeType
+        let modificationDate: Date?
 
         private var suffixName: String? { name.components(separatedBy: ".").last }
         var suffix: SFFileSuffix {
@@ -106,6 +107,11 @@ public class SFFileManager {
         }
     }
 
+    public func modificationDate(at path: String) -> Date? {
+        return (attributes(at: path)?[FileAttributeKey.modificationDate] as? Date)
+    }
+
+
     public func listItems(at path: String?) -> [SFFileItem]? {
         guard let path = path, !path.isEmpty else { return nil }
         let itemPaths = try? fileManager.contentsOfDirectory(atPath: path)
@@ -117,7 +123,8 @@ public class SFFileManager {
                 return SFFileItem(path: filePath,
                            name: itemPath,
                            size: fileSize,
-                           attributeType: type(at: filePath))
+                           attributeType: type(at: filePath),
+                           modificationDate: modificationDate(at: filePath))
             }
     }
 
@@ -168,5 +175,13 @@ extension Int {
             let size = Float(self) / Float(1024 * 1024 * 1024)
             return "\(String(format:"%.2f",size)) GB"
         }
+    }
+}
+
+extension Date {
+    public func formatString() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        return formatter.string(from: self)
     }
 }

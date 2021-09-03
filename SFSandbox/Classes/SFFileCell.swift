@@ -30,6 +30,13 @@ class SFFileCell: UITableViewCell {
         return label
     }()
 
+    private lazy var modificationDateLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 11)
+        label.textColor = .darkGray
+        return label
+    }()
+
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
@@ -44,12 +51,17 @@ class SFFileCell: UITableViewCell {
         nameLabel.snp.makeConstraints { make in
             make.left.equalTo(fileImageView.snp.right).offset(10)
             make.right.equalToSuperview().inset(20)
-            make.bottom.equalTo(fileImageView.snp.centerY).offset(-3)
+            make.bottom.equalTo(fileImageView.snp.centerY)
         }
         contentView.addSubview(sizeLabel)
         sizeLabel.snp.makeConstraints { make in
             make.left.equalTo(nameLabel)
-            make.top.equalTo(fileImageView.snp.centerY).offset(3)
+            make.bottom.equalToSuperview().inset(10)
+        }
+        contentView.addSubview(modificationDateLabel)
+        modificationDateLabel.snp.makeConstraints { make in
+            make.centerY.equalTo(sizeLabel)
+            make.right.equalTo(nameLabel)
         }
     }
 
@@ -84,5 +96,6 @@ class SFFileCell: UITableViewCell {
         }
         nameLabel.text = file.name
         sizeLabel.text = file.size.fileSizeFormatter()
+        modificationDateLabel.text = "上次修改: " + (file.modificationDate?.formatString() ?? "未知")
     }
 }
