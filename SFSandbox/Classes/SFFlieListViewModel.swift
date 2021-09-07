@@ -29,17 +29,34 @@ class SFFlieListViewModel {
         refresh()
     }
 
-    func createFile(_ name: String, suffix: String) {
+    func create(_ name: String, type: SFFileManager.SFFileSuffix) {
         guard let path = self.path, !path.isEmpty else { return }
+        var suffix = ""
+        switch type {
+        case .directory:
+            createDirectory(name)
+            return
+        case .json:
+            suffix = "json"
+        case .txt:
+            suffix = "txt"
+        case .excel, .file, .gif, .image, .pdf, .video, .word, .zip:
+            return
+        }
         SFFileManager.shared.createFile(at: path.addPathComponent(name).addSuffix(suffix))
         refresh()
     }
 
     func deleteFile(_ file: SFFileManager.SFFileItem) {
-        let result = SFFileManager.shared.delete(at: file.path)
+        let result = SFFileManager.shared.delete(file)
         if !result { return }
         var items = items
         items.removeAll(where: { $0.path == file.path })
         itemsRelay.accept(items)
+    }
+
+    func rename(_ file: SFFileManager.SFFileItem, name: String) {
+        SFFileManager.shared.rename(file, name: name)
+        refresh()
     }
 }

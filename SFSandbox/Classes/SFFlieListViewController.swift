@@ -138,8 +138,9 @@ extension SFFlieListViewController: UITableViewDelegate {
         let deleteAction = UIContextualAction(style: .destructive, title: "删除") { [viewModel] _, _, _ in
             viewModel.deleteFile(viewModel.items[indexPath.row])
         }
-        let renameAction = UIContextualAction(style: .normal, title: "重命名") { _, _, _ in
-
+        let renameAction = UIContextualAction(style: .normal, title: "重命名") { [weak self] _, _, _ in
+            guard let file = self?.viewModel.items[indexPath.row] else { return }
+            self?.triggerInputNameAlert(operation: .rename(file))
         }
         renameAction.backgroundColor = .blue
         return UISwipeActionsConfiguration(actions: [deleteAction, renameAction])
@@ -152,23 +153,11 @@ extension SFFlieListViewController {
         let sheetVc = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         let cancelAction = UIAlertAction(title: "取消", style: .cancel, handler: nil)
         sheetVc.addAction(cancelAction)
-        let fileName: ((SFFileManager.SFFileSuffix) -> String) = { type in
-            switch type {
-            case .directory:
-                return "文件夹"
-            case .json:
-                return "json"
-            case .txt:
-                return "txt"
-            case .excel, .file, .gif, .image, .pdf, .video, .word, .zip:
-                return ""
-            }
-        }
         let action: ((SFFileManager.SFFileSuffix) -> Void) = { type in
-            self.triggerInputNameAlert(type, name: fileName(type))
+            self.triggerInputNameAlert(operation: .create(type))
         }
         supportFiles.forEach { type in
-            let action = UIAlertAction(title: fileName(type), style: .default) { _ in
+            let action = UIAlertAction(title: type.localizedName, style: .default) { _ in
                 action(type)
             }
             sheetVc.addAction(action)
@@ -176,22 +165,29 @@ extension SFFlieListViewController {
         present(sheetVc, animated: true, completion: nil)
     }
 
-    private func triggerInputNameAlert(_ type: SFFileManager.SFFileSuffix, name: String) {
-        let alertVc = UIAlertController(title: "输入\(name)名称", message: nil, preferredStyle: .alert)
+    private func triggerInputNameAlert(operation: SFFileManager.Operation) {
+        var title: String = "输入名称"
+        switch operation {
+        case .create(let type):
+            title = "输入新建\(type.localizedName)的名字"
+        case .rename(let file):
+            title = "输入\(file.name)的新名字"
+        case .delete, .move:
+            return
+        }
+        let alertVc = UIAlertController(title: title, message: nil, preferredStyle: .alert)
         alertVc.addTextField { _ in }
         present(alertVc, animated: true, completion: nil)
         let cancelAction = UIAlertAction(title: "取消", style: .cancel, handler: nil)
         alertVc.addAction(cancelAction)
         let confirmAction = UIAlertAction(title: "确定", style: .default) { [weak self] _ in
             guard let name = alertVc.textFields?.first?.text, !name.isEmpty else { return }
-            switch type {
-            case .directory:
-                self?.viewModel.createDirectory(name)
-            case .txt:
-                self?.viewModel.createFile(name, suffix: "txt")
-            case .json:
-                self?.viewModel.createFile(name, suffix: "json")
-            case .excel, .file, .gif, .image, .pdf, .video, .word, .zip:
+            switch operation {
+            case .create(let type):
+                self?.viewModel.create(name, type: type)
+            case .rename(let file):
+                self?.viewModel.rename(file, name: name)
+            case .delete, .move:
                 break
             }
         }

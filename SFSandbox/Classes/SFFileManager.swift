@@ -78,6 +78,29 @@ extension SFFileManager {
         case gif
         case json
         case txt
+
+        var localizedName: String {
+            switch self {
+            case .directory: return "文件夹"
+            case .excel: return "Excel文件"
+            case .file: return "文件"
+            case .gif: return "GIF动图"
+            case .image: return "图片"
+            case .json: return "JSON文件"
+            case .pdf: return "PDF文件"
+            case .txt: return "TXT文件"
+            case .video: return "视频文件"
+            case .word: return "Word文件"
+            case .zip: return "压缩包"
+            }
+        }
+    }
+
+    public enum Operation {
+        case create(SFFileSuffix)
+        case delete
+        case move
+        case rename(SFFileItem)
     }
 }
 
@@ -111,6 +134,15 @@ public class SFFileManager {
         return (attributes(at: path)?[FileAttributeKey.modificationDate] as? Date)
     }
 
+    public func isDirectoryExist(at path: String) -> Bool {
+        var isDirectory: ObjCBool = false
+        let isExist = fileManager.fileExists(atPath: path, isDirectory: &isDirectory)
+        return isExist && isDirectory.boolValue
+    }
+
+    public func isFileExist(at path: String) -> Bool {
+        return fileManager.fileExists(atPath: path)
+    }
 
     public func listItems(at path: String?) -> [SFFileItem]? {
         guard let path = path, !path.isEmpty else { return nil }
@@ -125,11 +157,12 @@ public class SFFileManager {
                            size: fileSize,
                            attributeType: type(at: filePath),
                            modificationDate: modificationDate(at: filePath))
-            }
+            }.sorted(by: { $0.modificationDate ?? Date() > $1.modificationDate ?? Date() })
     }
 
     @discardableResult
     public func createDirectory(at path: String) -> Bool {
+        if isDirectoryExist(at: path) { return false }
         do {
             try fileManager.createDirectory(at: URL(fileURLWithPath: path), withIntermediateDirectories: true, attributes: nil)
             return true
@@ -138,13 +171,61 @@ public class SFFileManager {
 
     @discardableResult
     public func createFile(at path: String) -> Bool {
+        if isFileExist(at: path) { return false }
         return fileManager.createFile(atPath: path, contents: nil, attributes: nil)
     }
 
     @discardableResult
-    public func delete(at path: String) -> Bool {
+    public func delete(_ file: SFFileItem) -> Bool {
         do {
-            try fileManager.removeItem(atPath: path)
+            try fileManager.removeItem(atPath: file.path)
+            return true
+        } catch { return false }
+    }
+
+    @discardableResult
+    public func move(_ file: SFFileItem, to target: String) -> Bool {
+        do {
+            switch file.suffix {
+            case .directory:
+                let subFileItems = listItems(at: file.path)
+                subFileItems?.forEach({ file in
+                    let path = target.addPathComponent(file.name)
+                    if file.suffix == .directory {
+                        createDirectory(at: path)
+                    }
+                    move(file, to: path)
+                })
+            case .excel, .file, .gif, .image, .json, .pdf, .txt, .video, .word, .zip:
+                try fileManager.moveItem(atPath: file.path, toPath: target)
+            }
+            return true
+        } catch { return false }
+    }
+
+    @discardableResult
+    public func rename(_ file: SFFileItem, name: String) -> Bool {
+        let suffix = file.path.suffix ?? ""
+        var components = file.path.components(separatedBy: "/")
+        components.removeLast()
+        let path = components.joined(separator: "/").addPathComponent(name).addSuffix(suffix)
+        switch file.suffix {
+        case .directory:
+            if !createDirectory(at: path) { return false }
+            let moveResult = move(file, to: path)
+            //delete original
+            let deleteResult = delete(file)
+            return moveResult && deleteResult
+        case .excel, .file, .gif, .image, .json, .pdf, .txt, .video, .word, .zip:
+            if isFileExist(at: path) { return false }
+            return move(file, to: path)
+        }
+    }
+
+    @discardableResult
+    public func copy(_ file: SFFileItem, to path: String) -> Bool {
+        do {
+            try fileManager.copyItem(atPath: file.path, toPath: path)
             return true
         } catch { return false }
     }
@@ -157,7 +238,13 @@ extension String {
     }
 
     public func addSuffix(_ suffix: String) -> String {
+        if suffix.isEmpty { return self }
         return self + "." + suffix
+    }
+
+    public var suffix: String? {
+        if !self.contains(".") { return nil }
+        return self.components(separatedBy: ".").last
     }
 }
 
