@@ -63,8 +63,8 @@ class SFFlieListViewController: UIViewController {
     private let viewModel: SFFlieListViewModel
     private let dismissStyle: DismissStyle
 
-    init(path: String?, dismissStyle: DismissStyle) {
-        self.viewModel = SFFlieListViewModel(path: path)
+    init(file: SFFileManager.SFFileItem, dismissStyle: DismissStyle) {
+        self.viewModel = SFFlieListViewModel(file: file)
         self.dismissStyle = dismissStyle
         super.init(nibName: nil, bundle: nil)
     }
@@ -78,6 +78,7 @@ class SFFlieListViewController: UIViewController {
         view.backgroundColor = .white
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: dismissButton)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: createButton)
+        navigationItem.title = viewModel.fileName
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -123,14 +124,21 @@ class SFFlieListViewController: UIViewController {
         switch file.suffix {
         case .directory:
             routeToDirectory(file)
+        case .txt, .json:
+            routeToText(file)
         default:
             break
         }
     }
 
     private func routeToDirectory(_ directory: SFFileManager.SFFileItem) {
-        let fileListVc = SFFlieListViewController(path: directory.path, dismissStyle: .pop)
+        let fileListVc = SFFlieListViewController(file: directory, dismissStyle: .pop)
         navigationController?.pushViewController(fileListVc, animated: true)
+    }
+
+    private func routeToText(_ file: SFFileManager.SFFileItem) {
+        let textVc = SFTextFileViewController(file: file)
+        navigationController?.pushViewController(textVc, animated: true)
     }
 }
 

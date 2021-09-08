@@ -10,12 +10,14 @@ import RxSwift
 import RxCocoa
 
 class SFFlieListViewModel {
-    private let path: String?
+    private let file: SFFileManager.SFFileItem
     let itemsRelay = BehaviorRelay<[SFFileManager.SFFileItem]>(value: [])
     var items: [SFFileManager.SFFileItem] { itemsRelay.value }
+    private var path: String? { file.path }
+    var fileName: String { file.name }
     
-    init(path: String?) {
-        self.path = path
+    init(file: SFFileManager.SFFileItem) {
+        self.file = file
     }
 
     func refresh() {

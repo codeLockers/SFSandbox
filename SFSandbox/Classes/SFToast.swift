@@ -72,7 +72,7 @@ class SFToastManager {
             self?.display(toast)
             switch toast {
             case .success:
-                self?.toastQueue.asyncAfter(deadline: .now() + 0.05) {
+                self?.toastQueue.asyncAfter(deadline: .now() + 0.35) {
                     self?.pendingToasts.removeFirst()
                     self?.popToast()
                 }

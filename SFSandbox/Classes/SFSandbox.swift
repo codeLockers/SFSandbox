@@ -16,7 +16,12 @@ public class SFSandbox {
 
     private let entranceButton = EntranceButton()
     private lazy var rootViewController: SFNavigationViewController = {
-        let fileListVc = SFFlieListViewController(path: SFFileManager.Path.root.path, dismissStyle: .close)
+        let file = SFFileManager.SFFileItem(path: SFFileManager.Path.root.path ?? "",
+                                            name: "",
+                                            size: 0,
+                                            attributeType: .typeDirectory,
+                                            modificationDate: nil)
+        let fileListVc = SFFlieListViewController(file: file, dismissStyle: .close)
         let navigation = SFNavigationViewController(rootViewController: fileListVc)
         navigation.modalPresentationStyle = .overFullScreen
         return navigation
