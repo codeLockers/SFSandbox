@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import RxSwift
+import RxCocoa
 
 extension SFFileManager {
     public enum Path {
@@ -107,10 +109,20 @@ extension SFFileManager {
 public class SFFileManager {
     public static let shared = SFFileManager()
     private let fileManager = FileManager.default
+    let errorRelay = BehaviorRelay<String?>(value: nil)
+    let successRelay = BehaviorRelay<String?>(value: nil)
+
     private init() {}
 
     public func attributes(at path: String) -> [FileAttributeKey: Any]? {
-        return try? fileManager.attributesOfItem(atPath: path)
+        do {
+            let attributes = try fileManager.attributesOfItem(atPath: path)
+            successRelay.accept("读取文件\(path.lastComponentToastName)属性成功")
+            return attributes
+        } catch {
+            errorRelay.accept("读取文件\(path.lastComponentToastName)属性失败")
+            return nil
+        }
     }
 
     public func type(at path: String) -> FileAttributeType {
@@ -120,9 +132,14 @@ public class SFFileManager {
     public func size(at path: String, intialSize: inout Int) {
         switch type(at: path) {
         case .typeDirectory:
-            let subPaths = try? fileManager.contentsOfDirectory(atPath: path)
-            subPaths?.forEach { subPath in
-                size(at: path.addPathComponent(subPath), intialSize: &intialSize)
+            do {
+                let subPaths = try fileManager.contentsOfDirectory(atPath: path)
+                subPaths.forEach { subPath in
+                    size(at: path.addPathComponent(subPath), intialSize: &intialSize)
+                }
+                successRelay.accept("计算文件size-读取文件\(path.lastComponentToastName)的子文件成功")
+            } catch {
+                errorRelay.accept("计算文件size-读取文件\(path.lastComponentToastName)的子文件失败")
             }
         default:
             let size = (attributes(at: path)?[FileAttributeKey.size] as? NSNumber) ?? NSNumber(value: 0)
@@ -146,41 +163,63 @@ public class SFFileManager {
 
     public func listItems(at path: String?) -> [SFFileItem]? {
         guard let path = path, !path.isEmpty else { return nil }
-        let itemPaths = try? fileManager.contentsOfDirectory(atPath: path)
-        return itemPaths?
-            .map { itemPath in
-                let filePath = path.addPathComponent(itemPath)
-                var fileSize: Int = 0
-                size(at: filePath, intialSize: &fileSize)
-                return SFFileItem(path: filePath,
-                           name: itemPath,
-                           size: fileSize,
-                           attributeType: type(at: filePath),
-                           modificationDate: modificationDate(at: filePath))
-            }.sorted(by: { $0.modificationDate ?? Date() > $1.modificationDate ?? Date() })
+        do {
+            let itemPaths = try fileManager.contentsOfDirectory(atPath: path)
+            successRelay.accept("读取文件\(path.lastComponentToastName)的子文件成功")
+            return itemPaths
+                .map { itemPath in
+                    let filePath = path.addPathComponent(itemPath)
+                    var fileSize: Int = 0
+                    size(at: filePath, intialSize: &fileSize)
+                    return SFFileItem(path: filePath,
+                               name: itemPath,
+                               size: fileSize,
+                               attributeType: type(at: filePath),
+                               modificationDate: modificationDate(at: filePath))
+                }.sorted(by: { $0.modificationDate ?? Date() > $1.modificationDate ?? Date() })
+        } catch {
+            errorRelay.accept("读取文件\(path.lastComponentToastName)的子文件失败")
+            return nil
+        }
     }
 
     @discardableResult
     public func createDirectory(at path: String) -> Bool {
-        if isDirectoryExist(at: path) { return false }
+        if isDirectoryExist(at: path) {
+            errorRelay.accept("创建文件夹\(path.lastComponentToastName)失败-文件夹已经存在")
+            return false
+        }
         do {
             try fileManager.createDirectory(at: URL(fileURLWithPath: path), withIntermediateDirectories: true, attributes: nil)
+            successRelay.accept("创建文件夹\(path.lastComponentToastName)成功")
             return true
-        } catch { return false }
+        } catch {
+            errorRelay.accept("创建文件夹\(path.lastComponentToastName)失败")
+            return false
+        }
     }
 
     @discardableResult
     public func createFile(at path: String) -> Bool {
-        if isFileExist(at: path) { return false }
-        return fileManager.createFile(atPath: path, contents: nil, attributes: nil)
+        if isFileExist(at: path) {
+            errorRelay.accept("创建文件\(path.lastComponentToastName)失败-文件已经存在")
+            return false
+        }
+        let result = fileManager.createFile(atPath: path, contents: nil, attributes: nil)
+        result ? successRelay.accept("创建文件\(path.lastComponentToastName)成功") : errorRelay.accept("创建文件\(path.lastComponentToastName)失败")
+        return result
     }
 
     @discardableResult
     public func delete(_ file: SFFileItem) -> Bool {
         do {
             try fileManager.removeItem(atPath: file.path)
+            successRelay.accept("删除文件\(file.name)成功")
             return true
-        } catch { return false }
+        } catch {
+            errorRelay.accept("删除文件\(file.name)失败")
+            return false
+        }
     }
 
     @discardableResult
@@ -199,8 +238,12 @@ public class SFFileManager {
             case .excel, .file, .gif, .image, .json, .pdf, .txt, .video, .word, .zip:
                 try fileManager.moveItem(atPath: file.path, toPath: target)
             }
+            successRelay.accept("移动文件\(file.name)成功")
             return true
-        } catch { return false }
+        } catch {
+            errorRelay.accept("移动文件\(file.name)失败")
+            return false
+        }
     }
 
     @discardableResult
@@ -211,14 +254,24 @@ public class SFFileManager {
         let path = components.joined(separator: "/").addPathComponent(name).addSuffix(suffix)
         switch file.suffix {
         case .directory:
-            if !createDirectory(at: path) { return false }
+            if !createDirectory(at: path) {
+                errorRelay.accept("重命名文件夹-创建\(name)失败")
+                return false
+            }
             let moveResult = move(file, to: path)
             //delete original
             let deleteResult = delete(file)
+            moveResult ? successRelay.accept("重命名文件夹-移动\(file.name)成功") : errorRelay.accept("重命名文件夹-移动\(file.name)失败")
+            deleteResult ? successRelay.accept("重命名文件夹-删除原\(file.name)成功") : errorRelay.accept("重命名文件夹-删除原\(file.name)失败")
             return moveResult && deleteResult
         case .excel, .file, .gif, .image, .json, .pdf, .txt, .video, .word, .zip:
-            if isFileExist(at: path) { return false }
-            return move(file, to: path)
+            if isFileExist(at: path) {
+                errorRelay.accept("重命名文件-文件\(name)已经存在")
+                return false
+            }
+            let result = move(file, to: path)
+            result ? successRelay.accept("重命名文件-移动文件\(file.name)成功") : errorRelay.accept("重命名文件-移动文件\(file.name)失败")
+            return result
         }
     }
 
@@ -226,8 +279,12 @@ public class SFFileManager {
     public func copy(_ file: SFFileItem, to path: String) -> Bool {
         do {
             try fileManager.copyItem(atPath: file.path, toPath: path)
+            successRelay.accept("复制文件-文件\(file.name)成功")
             return true
-        } catch { return false }
+        } catch {
+            errorRelay.accept("复制文件-文件\(file.name)失败")
+            return false
+        }
     }
 }
 
@@ -245,6 +302,14 @@ extension String {
     public var suffix: String? {
         if !self.contains(".") { return nil }
         return self.components(separatedBy: ".").last
+    }
+
+    public var lastComponent: String? {
+        return self.components(separatedBy: "/").last
+    }
+
+    public var lastComponentToastName: String {
+        return lastComponent ?? "未知"
     }
 }
 

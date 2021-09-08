@@ -9,7 +9,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class SFSandboxNavigationViewController: UINavigationController { }
+class SFNavigationViewController: UINavigationController {}
 
 class SFFlieListViewController: UIViewController {
     enum DismissStyle {
@@ -95,6 +95,7 @@ class SFFlieListViewController: UIViewController {
             guard let self = self else { return }
             switch self.dismissStyle {
             case .close:
+                SFToastManager.shared.unregisterToast()
                 self.dismiss(animated: true, completion: nil)
             case .pop:
                 self.navigationController?.popViewController(animated: true)
@@ -142,7 +143,7 @@ extension SFFlieListViewController: UITableViewDelegate {
             guard let file = self?.viewModel.items[indexPath.row] else { return }
             self?.triggerInputNameAlert(operation: .rename(file))
         }
-        renameAction.backgroundColor = .blue
+        renameAction.backgroundColor = UIColor(red: 0, green: 122.0 / 255, blue: 1, alpha: 1)
         return UISwipeActionsConfiguration(actions: [deleteAction, renameAction])
     }
 }

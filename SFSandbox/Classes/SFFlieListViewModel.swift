@@ -25,8 +25,9 @@ class SFFlieListViewModel {
 
     func createDirectory(_ name: String) {
         guard let path = self.path, !path.isEmpty else { return }
-        SFFileManager.shared.createDirectory(at: path.addPathComponent(name))
-        refresh()
+        if SFFileManager.shared.createDirectory(at: path.addPathComponent(name)) {
+            refresh()
+        }
     }
 
     func create(_ name: String, type: SFFileManager.SFFileSuffix) {
@@ -43,8 +44,9 @@ class SFFlieListViewModel {
         case .excel, .file, .gif, .image, .pdf, .video, .word, .zip:
             return
         }
-        SFFileManager.shared.createFile(at: path.addPathComponent(name).addSuffix(suffix))
-        refresh()
+        if SFFileManager.shared.createFile(at: path.addPathComponent(name).addSuffix(suffix)) {
+            refresh()
+        }
     }
 
     func deleteFile(_ file: SFFileManager.SFFileItem) {
@@ -56,7 +58,8 @@ class SFFlieListViewModel {
     }
 
     func rename(_ file: SFFileManager.SFFileItem, name: String) {
-        SFFileManager.shared.rename(file, name: name)
-        refresh()
+        if SFFileManager.shared.rename(file, name: name) {
+            refresh()
+        }
     }
 }

@@ -12,18 +12,19 @@ import RxCocoa
 
 public class SFSandbox {
     private let disposeBag = DisposeBag()
-    private let errorRelay = BehaviorRelay<Error?>(value: nil)
     private let isLoadingRelay = BehaviorRelay<Bool>(value: false)
 
     private let entranceButton = EntranceButton()
-    private lazy var rootViewController: SFSandboxNavigationViewController = {
+    private lazy var rootViewController: SFNavigationViewController = {
         let fileListVc = SFFlieListViewController(path: SFFileManager.Path.root.path, dismissStyle: .close)
-        let navigation = SFSandboxNavigationViewController(rootViewController: fileListVc)
+        let navigation = SFNavigationViewController(rootViewController: fileListVc)
         navigation.modalPresentationStyle = .overFullScreen
         return navigation
     }()
 
     public init() {}
+
+    private let toastRelay = BehaviorRelay<SFToastManager.Toast?>(value: nil)
 
     public func start() {
         setup()
@@ -34,15 +35,18 @@ public class SFSandbox {
         entranceButton.rx.tap.bind { [weak self] in
             self?.enter()
         }.disposed(by: disposeBag)
+        Observable.merge(
+            SFFileManager.shared.errorRelay.compactMap { $0 }.map { .fail($0) },
+            SFFileManager.shared.successRelay.compactMap { $0 }.map { .success($0) }
+        )
+        .bind(to: SFToastManager.shared.toast)
+        .disposed(by: disposeBag)
     }
 }
 
 extension SFSandbox {
     private func setup() {
-        guard let window = UIApplication.shared.windows.last else {
-            errorRelay.accept(.noWindow)
-            return
-        }
+        guard let window = UIApplication.shared.windows.last else { return }
         window.addSubview(entranceButton)
         window.bringSubview(toFront: entranceButton)
         entranceButton.snp.makeConstraints { make in
@@ -53,13 +57,12 @@ extension SFSandbox {
     }
 
     private func enter() {
-        UIApplication.shared.windows.last?.rootViewController?.present(rootViewController, animated: true, completion: nil)
-    }
-}
+        guard let window = UIApplication.shared.windows.last else { return }
+        window.rootViewController?.present(rootViewController, animated: true, completion: {
+            SFToastManager.shared.registerToast(on: window)
+        })
 
-extension SFSandbox {
-    public enum Error {
-        case noWindow
+
     }
 }
 
@@ -79,7 +82,7 @@ extension SFSandbox {
 extension UIWindow {
     open override func layoutSubviews() {
         super.layoutSubviews()
-        if rootViewController?.presentedViewController is SFSandboxNavigationViewController { return }
+        if rootViewController?.presentedViewController is SFNavigationViewController { return }
         guard let button = subviews.first(where: { $0 is SFSandbox.EntranceButton }) else { return }
         bringSubview(toFront: button)
     }
