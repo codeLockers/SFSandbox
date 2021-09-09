@@ -126,6 +126,8 @@ class SFFlieListViewController: UIViewController {
             routeToDirectory(file)
         case .txt, .json:
             routeToText(file)
+        case .image:
+            routeToImage(file)
         default:
             break
         }
@@ -139,6 +141,11 @@ class SFFlieListViewController: UIViewController {
     private func routeToText(_ file: SFFileManager.SFFileItem) {
         let textVc = SFTextFileViewController(file: file)
         navigationController?.pushViewController(textVc, animated: true)
+    }
+
+    private func routeToImage(_ image: SFFileManager.SFFileItem) {
+        let imageVc = SFImageFileViewController(file: image)
+        navigationController?.pushViewController(imageVc, animated: true)
     }
 }
 

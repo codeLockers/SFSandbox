@@ -9,16 +9,9 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class SFFlieListViewModel {
-    private let file: SFFileManager.SFFileItem
+class SFFlieListViewModel: SFViewModel {
     let itemsRelay = BehaviorRelay<[SFFileManager.SFFileItem]>(value: [])
     var items: [SFFileManager.SFFileItem] { itemsRelay.value }
-    private var path: String? { file.path }
-    var fileName: String { file.name }
-    
-    init(file: SFFileManager.SFFileItem) {
-        self.file = file
-    }
 
     func refresh() {
         let items = SFFileManager.shared.listItems(at: path) ?? []

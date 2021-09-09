@@ -9,18 +9,12 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class SFTextFlieViewModel {
-    private let file: SFFileManager.SFFileItem
-    private var path: String? { file.path }
-    var fileName: String { file.name }
-
+class SFTextFlieViewModel: SFViewModel {
     let contentRelay = BehaviorRelay<String?>(value: nil)
-    let errorRelay = BehaviorRelay<String?>(value: nil)
-    let successRelay = BehaviorRelay<String?>(value: nil)
     let writeSuccessRelay = BehaviorRelay<Bool?>(value: nil)
 
-    init(file: SFFileManager.SFFileItem) {
-        self.file = file
+    override init(file: SFFileManager.SFFileItem) {
+        super.init(file: file)
         readFile()
     }
 

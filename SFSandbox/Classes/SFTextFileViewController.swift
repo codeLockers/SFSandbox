@@ -9,14 +9,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class SFTextFileViewController: UIViewController {
-    private lazy var dismissButton: UIButton = {
-        let button = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
-        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 30)
-        button.setImage(SFResources.image(.back), for: .normal)
-        return button
-    }()
-
+class SFTextFileViewController: SFViewController {
     private lazy var saveButton: UIButton = {
         let button = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 0)
@@ -34,12 +27,11 @@ class SFTextFileViewController: UIViewController {
         return textView
     }()
 
-    private let disposeBag = DisposeBag()
-    private let viewModel: SFTextFlieViewModel
+    private var flatViewModel: SFTextFlieViewModel? { self.viewModel as? SFTextFlieViewModel }
 
-    init(file: SFFileManager.SFFileItem) {
+    override init(file: SFFileManager.SFFileItem) {
+        super.init(file: file)
         self.viewModel = SFTextFlieViewModel(file: file)
-        super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -48,10 +40,7 @@ class SFTextFileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: dismissButton)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButton)
-        navigationItem.title = viewModel.fileName
         view.addSubview(textView)
         textView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -60,22 +49,13 @@ class SFTextFileViewController: UIViewController {
     }
 
     private func handleRxBindings() {
-        Observable.merge(
-            viewModel.errorRelay.compactMap { $0 }.map { .fail($0) },
-            viewModel.successRelay.compactMap { $0 }.map { .success($0) }
-        )
-        .bind(to: SFToastManager.shared.toast)
-        .disposed(by: disposeBag)
-        dismissButton.rx.tap.bind { [navigationController] in
-            navigationController?.popViewController(animated: true)
+        saveButton.rx.tap.bind { [flatViewModel, textView] in
+            flatViewModel?.save(textView.text)
         }.disposed(by: disposeBag)
-        saveButton.rx.tap.bind { [viewModel, textView] in
-            viewModel.save(textView.text)
-        }.disposed(by: disposeBag)
-        viewModel.contentRelay.compactMap { $0 }
+        flatViewModel?.contentRelay.compactMap { $0 }
             .bind(to: textView.rx.text)
             .disposed(by: disposeBag)
-        viewModel.writeSuccessRelay
+        flatViewModel?.writeSuccessRelay
             .compactMap { $0 }
             .filter { $0 }
             .bind { [navigationController] _ in
