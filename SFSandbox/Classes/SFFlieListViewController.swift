@@ -128,7 +128,15 @@ class SFFlieListViewController: UIViewController {
             routeToText(file)
         case .image:
             routeToImage(file)
-        default:
+        case .pdf, .word, .excel:
+            routeToWeb(file)
+        case .video:
+            break
+        case .zip:
+            break
+        case .gif:
+            break
+        case .file:
             break
         }
     }
@@ -146,6 +154,11 @@ class SFFlieListViewController: UIViewController {
     private func routeToImage(_ image: SFFileManager.SFFileItem) {
         let imageVc = SFImageFileViewController(file: image)
         navigationController?.pushViewController(imageVc, animated: true)
+    }
+
+    private func routeToWeb(_ file: SFFileManager.SFFileItem) {
+        let webVc = SFWebFileViewController(file: file)
+        navigationController?.pushViewController(webVc, animated: true)
     }
 }
 

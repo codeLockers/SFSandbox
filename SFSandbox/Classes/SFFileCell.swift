@@ -78,7 +78,7 @@ class SFFileCell: UITableViewCell {
             case .image:
                 fileImageView.image = SFResources.image(.image)
             case .pdf:
-                fileImageView.image = SFResources.image(.image)
+                fileImageView.image = SFResources.image(.pdf)
             case .video:
                 fileImageView.image = SFResources.image(.video)
             case .word:

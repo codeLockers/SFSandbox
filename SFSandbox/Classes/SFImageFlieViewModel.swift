@@ -10,14 +10,14 @@ import Foundation
 class SFImageFlieViewModel: SFViewModel {
     var image: UIImage? {
         guard let path = self.path, !path.isEmpty else {
-            errorRelay.accept("图片路径为空")
+            errorRelay.accept("图片\(fileName)路径为空")
             return nil
         }
         guard let image = UIImage(contentsOfFile: path) else {
-            errorRelay.accept("图片读取失败")
+            errorRelay.accept("图片\(fileName)读取失败")
             return nil
         }
-        successRelay.accept("图片读取成功")
+        successRelay.accept("图片\(fileName)读取成功")
         return image
     }
 }
