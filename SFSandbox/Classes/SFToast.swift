@@ -73,15 +73,24 @@ class SFToastManager {
             switch toast {
             case .success:
                 self?.toastQueue.asyncAfter(deadline: .now() + 0.35) {
+                    if self?.pendingToasts.isEmpty ?? true { return }
                     self?.pendingToasts.removeFirst()
                     self?.popToast()
                 }
             case .fail:
                 self?.toastQueue.asyncAfter(deadline: .now() + 3) {
+                    if self?.pendingToasts.isEmpty ?? true { return }
                     self?.pendingToasts.removeFirst()
                     self?.popToast()
                 }
             }
+        }
+    }
+
+    func close() {
+        toastQueue.async(flags: .barrier) { [weak self] in
+            self?.pendingToasts.removeAll()
+            self?.hideToastView()
         }
     }
 
@@ -147,6 +156,14 @@ class SFToast: UIView {
         return label
     }()
 
+    private lazy var closeButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("关闭", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 13)
+        return button
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubview(successStatsLabel)
@@ -165,6 +182,12 @@ class SFToast: UIView {
             make.bottom.lessThanOrEqualTo(successStatsLabel.snp.top)
             make.top.equalToSuperview().inset(15)
         }
+        closeButton.addTarget(self, action: #selector(close), for: .touchUpInside)
+        addSubview(closeButton)
+        closeButton.snp.makeConstraints { make in
+            make.left.equalToSuperview().inset(30)
+            make.centerY.equalTo(successStatsLabel)
+        }
     }
 
     required init?(coder: NSCoder) {
@@ -182,5 +205,9 @@ class SFToast: UIView {
         }
         successStatsLabel.text = "成功：\(successStats)"
         errorStatsLabel.text = "失败：\(errorStats)"
+    }
+
+    @objc private func close() {
+        SFToastManager.shared.close()
     }
 }

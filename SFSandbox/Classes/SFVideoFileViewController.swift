@@ -85,17 +85,28 @@ class SFVideoFileViewController: SFViewController {
             guard let duration = self?.playerItem?.duration.seconds else { return }
             let currentTime = time.seconds
             let progress = currentTime / duration
-            if progress >= 1 { self?.seek(to: 0) }
+            if progress >= 1 {
+                self?.seek(to: 0)
+                self?.progressBar.statusRelay.accept(.paused)
+            }
             self?.progressBar.updateProgress(Float(progress))
             self?.progressBar.currentTime = Float(currentTime)
         })
-        progressBar.playSubject.bind { [player] play in
-            play ? player?.play() : player?.pause()
-        }.disposed(by: disposeBag)
         progressBar.progressRelay
             .compactMap { $0 }
             .bind { [weak self] progress in
                 self?.seek(to: progress)
+            }.disposed(by: disposeBag)
+        progressBar.statusRelay
+            .distinctUntilChanged()
+            .bind { [weak self] status in
+                guard let player = self?.player else { return }
+                switch status {
+                case .paused:
+                    if player.timeControlStatus == .playing { player.pause() }
+                case .playing:
+                    if player.timeControlStatus == .paused { player.play() }
+                }
             }.disposed(by: disposeBag)
     }
 
@@ -106,13 +117,16 @@ class SFVideoFileViewController: SFViewController {
             let player = self.player
         else { return }
         let time = duration * Double(progress)
-        if player.timeControlStatus == .playing { player.pause() }
         let seekTime = CMTime(value: CMTimeValue(time), timescale: 1)
         player.seek(to: seekTime)
     }
 }
 
 fileprivate class VideoProgressBar: UIView {
+    enum Status {
+        case playing
+        case paused
+    }
 
     private lazy var operationButton: UIButton = {
         let button = UIButton()
@@ -146,7 +160,7 @@ fileprivate class VideoProgressBar: UIView {
     }()
 
     private let disposeBag = DisposeBag()
-    let playSubject = PublishSubject<Bool>()
+    let statusRelay = BehaviorRelay<Status>(value: .playing)
     let progressRelay = BehaviorRelay<Float?>(value: nil)
     var duration: Float = 0 {
         didSet { durationTimeLabel.text = duration.formatTime }
@@ -187,19 +201,35 @@ fileprivate class VideoProgressBar: UIView {
     }
 
     private func handleRxBindings() {
-        operationButton.rx.tap.bind { [weak self] in
-            guard let self = self else { return }
-            self.operationButton.isSelected = !self.operationButton.isSelected
-            self.playSubject.onNext(self.operationButton.isSelected)
-        }.disposed(by: disposeBag)
         slider.rx.value
+            .skip(1)
             .distinctUntilChanged()
             .compactMap { $0 }
+            .map { [statusRelay] progress in
+                statusRelay.accept(.paused)
+                return progress
+            }
             .bind(to: progressRelay)
             .disposed(by: disposeBag)
-        slider.rx.controlEvent(.touchUpInside).bind { [playSubject] in
-            playSubject.onNext(true)
-        }.disposed(by: disposeBag)
+        slider.rx.controlEvent(.touchUpInside)
+            .map { Status.playing }
+            .bind(to: statusRelay)
+            .disposed(by: disposeBag)
+        operationButton.rx.tap
+            .map { [weak self] in self?.operationButton.isSelected ?? false }
+            .map { $0 ? Status.paused : Status.playing }
+            .bind(to: statusRelay)
+            .disposed(by: disposeBag)
+        statusRelay.distinctUntilChanged()
+            .map { status in
+                switch status {
+                case .playing: return false
+                case .paused: return true
+                }
+            }
+            .map { !$0 }
+            .bind(to: operationButton.rx.isSelected)
+            .disposed(by: disposeBag)
     }
 
     func updateProgress(_ progress: Float) {
