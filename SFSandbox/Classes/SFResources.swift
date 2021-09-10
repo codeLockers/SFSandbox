@@ -7,8 +7,11 @@
 
 import Foundation
 
+
+
 struct SFResources {
-    static let bundle = Bundle(for: SFSandbox.self)
+    static let bundleUrl: URL = Bundle(for: SFSandbox.self).url(forResource: "SFSandbox", withExtension: "bundle") ?? URL(fileURLWithPath: "")
+    static let bundle = Bundle(url: bundleUrl)
 
     enum Image {
         case entrance
@@ -70,7 +73,7 @@ struct SFResources {
     }
 
     static func image(_ image: Image, type: String = "png") -> UIImage? {
-        guard let path = bundle.path(forResource: image.filename + "@3x", ofType: type) else { return nil }
+        guard let path = bundle?.path(forResource: image.filename + "@3x", ofType: type) else { return nil }
         return UIImage(contentsOfFile: path)
     }
 }

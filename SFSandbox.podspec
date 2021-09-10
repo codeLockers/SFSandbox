@@ -32,13 +32,14 @@ TODO: Add long description of the pod here.
 
   s.source_files = 'SFSandbox/Classes/**/*'
   
-  # s.resource_bundles = {
-  #   'SFSandbox' => ['SFSandbox/Assets/*.png']
-  # }
+  s.resource_bundles = {
+    'SFSandbox' => ['SFSandbox/Assets/*']
+  }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
   s.dependency 'RxSwift', '6.2.0'
   s.dependency 'RxCocoa', '6.2.0'
   s.dependency 'SnapKit', '5.0.1'
+  s.dependency 'SSZipArchive', '2.4.2'
 end

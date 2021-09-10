@@ -9,7 +9,9 @@ PODS:
     - RxCocoa (= 6.2.0)
     - RxSwift (= 6.2.0)
     - SnapKit (= 5.0.1)
+    - SSZipArchive (= 2.4.2)
   - SnapKit (5.0.1)
+  - SSZipArchive (2.4.2)
 
 DEPENDENCIES:
   - SFSandbox (from `../`)
@@ -20,6 +22,7 @@ SPEC REPOS:
     - RxRelay
     - RxSwift
     - SnapKit
+    - SSZipArchive
 
 EXTERNAL SOURCES:
   SFSandbox:
@@ -29,8 +32,9 @@ SPEC CHECKSUMS:
   RxCocoa: 4baf94bb35f2c0ab31bc0cb9f1900155f646ba42
   RxRelay: e72dbfd157807478401ef1982e1c61c945c94b2f
   RxSwift: d356ab7bee873611322f134c5f9ef379fa183d8f
-  SFSandbox: 35e91f4606b5d06b8825bc47791b333117b79e38
+  SFSandbox: e5330779635d7346fe7e5cc0aab3673d012a3a3e
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
+  SSZipArchive: e7b4f3d9e780c2acc1764cd88fbf2de28f26e5b2
 
 PODFILE CHECKSUM: 01f28307547eb74e2c7428c2ae14ec9f7d7b7d88
 
