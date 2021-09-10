@@ -131,7 +131,7 @@ class SFFlieListViewController: UIViewController {
         case .pdf, .word, .excel:
             routeToWeb(file)
         case .video:
-            break
+            routeToVideo(file)
         case .zip:
             break
         case .gif:
@@ -159,6 +159,11 @@ class SFFlieListViewController: UIViewController {
     private func routeToWeb(_ file: SFFileManager.SFFileItem) {
         let webVc = SFWebFileViewController(file: file)
         navigationController?.pushViewController(webVc, animated: true)
+    }
+
+    private func routeToVideo(_ video: SFFileManager.SFFileItem) {
+        let videoVc = SFVideoFileViewController(file: video)
+        navigationController?.pushViewController(videoVc, animated: true)
     }
 }
 

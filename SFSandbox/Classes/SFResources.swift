@@ -25,6 +25,9 @@ struct SFResources {
         case json
         case txt
         case pdf
+        case play
+        case pause
+        case slider
 
         var filename: String {
             switch self {
@@ -56,6 +59,12 @@ struct SFResources {
                 return "sf_sandbox_txt"
             case .pdf:
                 return "sf_sandbox_pdf"
+            case .play:
+                return "sf_sandbox_play"
+            case .pause:
+                return "sf_sandbox_pause"
+            case .slider:
+                return "sf_sandbox_slider"
             }
         }
     }
