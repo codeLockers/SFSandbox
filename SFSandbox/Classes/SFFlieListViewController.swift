@@ -128,13 +128,11 @@ class SFFlieListViewController: UIViewController {
             routeToText(file)
         case .image:
             routeToImage(file)
-        case .pdf, .word, .excel:
+        case .pdf, .word, .excel, .gif:
             routeToWeb(file)
         case .video:
             routeToVideo(file)
         case .zip:
-            break
-        case .gif:
             break
         case .file:
             break

@@ -33,11 +33,24 @@ class SFWebFileViewController: SFViewController {
     }
 
     private func loadFile() {
-        guard let path = viewModel?.path, !path.isEmpty else {
-            viewModel?.errorRelay.accept("文件\(viewModel?.fileName ?? "")为空")
+        guard let viewModel = self.viewModel else { return }
+        guard let path = viewModel.path, !path.isEmpty else {
+            viewModel.errorRelay.accept("文件\(viewModel.fileName)为空")
             return
         }
         let url = URL(fileURLWithPath: path)
-        webView.load(URLRequest(url: url))
+        switch viewModel.file.suffix {
+        case .pdf, .word, .excel:
+            webView.load(URLRequest(url: url))
+        case .gif:
+            do {
+                let data = try Data(contentsOf: url)
+                webView.load(data, mimeType: "image/gif", characterEncodingName: "", baseURL: url)
+            } catch {
+                viewModel.errorRelay.accept("文件\(viewModel.fileName)二进制转换失败")
+            }
+        case .directory, .file, .image, .video, .zip, .json, .txt:
+            break
+        }
     }
 }
