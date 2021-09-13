@@ -57,4 +57,22 @@ class SFFlieListViewModel: SFViewModel {
             refresh()
         }
     }
+
+    func zip(_ file: SFFileManager.SFFileItem) {
+        if SFFileManager.shared.zip(file) {
+            refresh()
+            successRelay.accept("压缩文件\(file.name)成功")
+        } else {
+            errorRelay.accept("压缩文件\(file.name)失败")
+        }
+    }
+
+    func unzip(_ file: SFFileManager.SFFileItem) {
+        if SFFileManager.shared.unzip(file) {
+            refresh()
+            successRelay.accept("解压文件\(file.name)成功")
+        } else {
+            errorRelay.accept("解压文件\(file.name)失败")
+        }
+    }
 }

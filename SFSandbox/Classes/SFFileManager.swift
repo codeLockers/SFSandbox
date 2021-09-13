@@ -8,6 +8,7 @@
 import Foundation
 import RxSwift
 import RxCocoa
+import SSZipArchive
 
 extension SFFileManager {
     public enum Path {
@@ -40,6 +41,14 @@ extension SFFileManager {
         let attributeType: FileAttributeType
         let modificationDate: Date?
 
+        var canZip: Bool {
+            switch suffix {
+            case .zip:
+                return false
+            case .directory, .excel, .file, .gif, .image, .json, .pdf, .txt, .video, .word:
+                return true
+            }
+        }
         private var suffixName: String? { name.components(separatedBy: ".").last }
         var suffix: SFFileSuffix {
             if attributeType == .typeDirectory { return .directory }
@@ -101,8 +110,9 @@ extension SFFileManager {
     public enum Operation {
         case create(SFFileSuffix)
         case delete
-        case move
         case rename(SFFileItem)
+        case zip(SFFileItem)
+        case unzip(SFFileItem)
     }
 }
 
@@ -286,6 +296,45 @@ public class SFFileManager {
             return false
         }
     }
+
+    @discardableResult
+    public func zip(_ file: SFFileItem) -> Bool {
+        let newPath = file.path.removeSuffix().addSuffix("zip")
+        if isFileExist(at: newPath) {
+            errorRelay.accept("压缩文件-压缩文件\(file.name)已经存在")
+            return false
+        }
+        switch file.suffix {
+        case .directory:
+            return SSZipArchive.createZipFile(atPath: newPath, withContentsOfDirectory: file.path)
+        case .excel, .file, .gif, .image, .json, .pdf, .txt, .video, .word:
+            return SSZipArchive.createZipFile(atPath: newPath, withFilesAtPaths: [file.path])
+        case .zip:
+            errorRelay.accept("压缩文件-压缩文件\(file.name)不能被压缩")
+            return false
+        }
+    }
+
+    @discardableResult
+    public func unzip(_ file: SFFileItem) -> Bool {
+        switch file.suffix {
+        case .zip:
+            break
+        case .directory, .excel, .file, .gif, .image, .json, .pdf, .txt, .video, .word:
+            errorRelay.accept("解压文件-文件\(file.name)不是压缩文件")
+            return false
+        }
+        let path = file.path.removeSuffix()
+        guard !path.isEmpty else {
+            errorRelay.accept("解压文件-文件\(file.name)解压路径为空")
+            return false
+        }
+        if isDirectoryExist(at: path) {
+            errorRelay.accept("解压文件-文件\(file.name)解压目标路径已存在")
+            return false
+        }
+        return SSZipArchive.unzipFile(atPath: file.path, toDestination: path)
+    }
 }
 
 extension String {
@@ -297,6 +346,13 @@ extension String {
     public func addSuffix(_ suffix: String) -> String {
         if suffix.isEmpty { return self }
         return self + "." + suffix
+    }
+
+    public func removeSuffix() -> String {
+        if !self.contains(".") { return self }
+        var components = self.components(separatedBy: ".")
+        components.removeLast()
+        return components.joined(separator: ".")
     }
 
     public var suffix: String? {

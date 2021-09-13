@@ -167,15 +167,21 @@ class SFFlieListViewController: UIViewController {
 
 extension SFFlieListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let file = viewModel.items[indexPath.row]
         let deleteAction = UIContextualAction(style: .destructive, title: "删除") { [viewModel] _, _, _ in
-            viewModel.deleteFile(viewModel.items[indexPath.row])
+            viewModel.deleteFile(file)
         }
+
         let renameAction = UIContextualAction(style: .normal, title: "重命名") { [weak self] _, _, _ in
-            guard let file = self?.viewModel.items[indexPath.row] else { return }
             self?.triggerInputNameAlert(operation: .rename(file))
         }
         renameAction.backgroundColor = UIColor(red: 0, green: 122.0 / 255, blue: 1, alpha: 1)
-        return UISwipeActionsConfiguration(actions: [deleteAction, renameAction])
+
+        let zipAction = UIContextualAction(style: .normal, title: file.canZip ? "压缩" : "解压") { [viewModel] _, _, _ in
+            file.canZip ? viewModel.zip(file) : viewModel.unzip(file)
+        }
+        zipAction.backgroundColor = file.canZip ? .orange : .brown
+        return UISwipeActionsConfiguration(actions: [deleteAction, renameAction, zipAction])
     }
 }
 
@@ -204,7 +210,7 @@ extension SFFlieListViewController {
             title = "输入新建\(type.localizedName)的名字"
         case .rename(let file):
             title = "输入\(file.name)的新名字"
-        case .delete, .move:
+        case .delete, .zip, .unzip:
             return
         }
         let alertVc = UIAlertController(title: title, message: nil, preferredStyle: .alert)
@@ -219,7 +225,7 @@ extension SFFlieListViewController {
                 self?.viewModel.create(name, type: type)
             case .rename(let file):
                 self?.viewModel.rename(file, name: name)
-            case .delete, .move:
+            case .delete, .zip, .unzip:
                 break
             }
         }
