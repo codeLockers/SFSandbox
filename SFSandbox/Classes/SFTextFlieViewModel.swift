@@ -23,6 +23,7 @@ class SFTextFlieViewModel: SFViewModel {
             errorRelay.accept("读取文件\(file.name)不存在")
             return
         }
+        startLoading()
         do {
             let content = try String(contentsOf: URL(fileURLWithPath: path), encoding: .utf8)
             contentRelay.accept(content)
@@ -30,6 +31,7 @@ class SFTextFlieViewModel: SFViewModel {
         } catch {
             errorRelay.accept("读取文件\(file.name)失败")
         }
+        stopLoading()
     }
 
     func save(_ content: String) {
@@ -45,6 +47,7 @@ class SFTextFlieViewModel: SFViewModel {
             errorRelay.accept("写入内容编码失败")
             return
         }
+        startLoading()
         do {
             try handle.truncate(atOffset: 0)
             successRelay.accept("文件\(file.name)清空成功")
@@ -61,6 +64,6 @@ class SFTextFlieViewModel: SFViewModel {
             errorRelay.accept("文件\(file.name)关闭失败")
         }
         writeSuccessRelay.accept(true)
-
+        stopLoading()
     }
 }

@@ -138,6 +138,9 @@ class SFFlieListViewController: UIViewController {
             .bind { [viewModel] text in
                 viewModel.search(keyword: text)
             }.disposed(by: disposeBag)
+        viewModel.isLoadingRelay.bind { [weak self] isLoading in
+            isLoading ? self?.startLoading() : self?.stopLoading()
+        }.disposed(by: disposeBag)
     }
 
     private func route(to file: SFFileManager.SFFileItem) {

@@ -9,6 +9,33 @@ import UIKit
 import RxSwift
 import RxCocoa
 
+protocol SFLoading {
+    func startLoading()
+    func stopLoading()
+}
+
+extension SFLoading {
+    func startLoading() {
+        guard let view = (self as? UIViewController)?.view else { return }
+        let indicatorView = UIActivityIndicatorView(activityIndicatorStyle: .medium)
+        indicatorView.hidesWhenStopped = true
+        view.addSubview(indicatorView)
+        indicatorView.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+        indicatorView.startAnimating()
+    }
+
+    func stopLoading() {
+        guard let view = (self as? UIViewController)?.view else { return }
+        view.subviews.filter { $0 is UIActivityIndicatorView }
+            .compactMap { $0 as? UIActivityIndicatorView }
+            .forEach { $0.stopAnimating() }
+    }
+}
+
+extension UIViewController: SFLoading {}
+
 class SFViewController: UIViewController {
     private lazy var dismissButton: UIButton = {
         let button = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
@@ -43,5 +70,8 @@ class SFViewController: UIViewController {
         )
         .bind(to: SFToastManager.shared.toast)
         .disposed(by: disposeBag)
+        viewModel.isLoadingRelay.bind { [weak self] isLoading in
+            isLoading ? self?.startLoading() : self?.stopLoading()
+        }.disposed(by: disposeBag)
     }
 }

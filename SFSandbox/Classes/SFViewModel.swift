@@ -13,6 +13,7 @@ class SFViewModel: SFViewModelProtocol {
     let file: SFFileManager.SFFileItem
     let errorRelay = BehaviorRelay<String?>(value: nil)
     let successRelay = BehaviorRelay<String?>(value: nil)
+    let isLoadingRelay = BehaviorRelay<Bool>(value: false)
 
     var path: String? { file.path }
     var fileName: String { file.name }
@@ -20,6 +21,9 @@ class SFViewModel: SFViewModelProtocol {
     init(file: SFFileManager.SFFileItem) {
         self.file = file
     }
+
+    func startLoading() { isLoadingRelay.accept(true) }
+    func stopLoading() { isLoadingRelay.accept(false) }
 }
 
 protocol SFViewModelProtocol {
@@ -28,4 +32,5 @@ protocol SFViewModelProtocol {
     var fileName: String { get }
     var errorRelay: BehaviorRelay<String?> { get }
     var successRelay: BehaviorRelay<String?> { get }
+    var isLoadingRelay: BehaviorRelay<Bool> { get }
 }
