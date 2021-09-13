@@ -45,8 +45,16 @@ extension SFFileManager {
             switch suffix {
             case .zip:
                 return false
-            case .directory, .excel, .file, .gif, .image, .json, .pdf, .txt, .video, .word:
+            case .directory, .excel, .file, .gif, .image, .json, .pdf, .txt, .video, .word, .java, .xml, .apk, .ipa, .markdown, .swift, .xib, .html, .code, .javascript:
                 return true
+            }
+        }
+        var isDirectory: Bool {
+            switch suffix {
+            case .directory:
+                return true
+            case .zip, .excel, .file, .gif, .image, .json, .pdf, .txt, .video, .word, .java, .xml, .apk, .ipa, .markdown, .swift, .xib, .html, .code, .javascript:
+                return false
             }
         }
         private var suffixName: String? { name.components(separatedBy: ".").last }
@@ -71,6 +79,26 @@ extension SFFileManager {
                 return .json
             } else if suffix == "txt" {
                 return .txt
+            } else if suffix == "java" {
+                return .java
+            } else if suffix == "xml" {
+                return .xml
+            } else if suffix == "apk" {
+                return .apk
+            } else if suffix == "ipa" {
+                return .ipa
+            } else if suffix == "md" {
+                return .markdown
+            } else if suffix == "swift" {
+                return .swift
+            } else if suffix == "xib" {
+                return .xib
+            } else if suffix == "html" {
+                return .html
+            } else if suffix == "h" || suffix == "m" || suffix == "c" {
+                return .code
+            } else if suffix == "javascript" {
+                return .javascript
             } else {
                 return .file
             }
@@ -89,6 +117,16 @@ extension SFFileManager {
         case gif
         case json
         case txt
+        case java
+        case xml
+        case apk
+        case ipa
+        case markdown
+        case swift
+        case xib
+        case html
+        case code
+        case javascript
 
         var localizedName: String {
             switch self {
@@ -103,6 +141,16 @@ extension SFFileManager {
             case .video: return "视频文件"
             case .word: return "Word文件"
             case .zip: return "压缩包"
+            case .java: return "JAVA文件"
+            case .xml: return "XML文件"
+            case .apk: return "Adroid安装包"
+            case .ipa: return "Apple安装包"
+            case .markdown: return "Markdown文件"
+            case .swift: return "Swift文件"
+            case .xib: return "XIB文件"
+            case .html: return "HTML文件"
+            case .javascript: return "JS文件"
+            case .code: return "其他代码文件"
             }
         }
     }
@@ -235,8 +283,7 @@ public class SFFileManager {
     @discardableResult
     public func move(_ file: SFFileItem, to target: String) -> Bool {
         do {
-            switch file.suffix {
-            case .directory:
+            if file.isDirectory {
                 let subFileItems = listItems(at: file.path)
                 subFileItems?.forEach({ file in
                     let path = target.addPathComponent(file.name)
@@ -245,7 +292,7 @@ public class SFFileManager {
                     }
                     move(file, to: path)
                 })
-            case .excel, .file, .gif, .image, .json, .pdf, .txt, .video, .word, .zip:
+            } else {
                 try fileManager.moveItem(atPath: file.path, toPath: target)
             }
             successRelay.accept("移动文件\(file.name)成功")
@@ -262,8 +309,7 @@ public class SFFileManager {
         var components = file.path.components(separatedBy: "/")
         components.removeLast()
         let path = components.joined(separator: "/").addPathComponent(name).addSuffix(suffix)
-        switch file.suffix {
-        case .directory:
+        if file.isDirectory {
             if !createDirectory(at: path) {
                 errorRelay.accept("重命名文件夹-创建\(name)失败")
                 return false
@@ -274,7 +320,7 @@ public class SFFileManager {
             moveResult ? successRelay.accept("重命名文件夹-移动\(file.name)成功") : errorRelay.accept("重命名文件夹-移动\(file.name)失败")
             deleteResult ? successRelay.accept("重命名文件夹-删除原\(file.name)成功") : errorRelay.accept("重命名文件夹-删除原\(file.name)失败")
             return moveResult && deleteResult
-        case .excel, .file, .gif, .image, .json, .pdf, .txt, .video, .word, .zip:
+        } else {
             if isFileExist(at: path) {
                 errorRelay.accept("重命名文件-文件\(name)已经存在")
                 return false
@@ -304,23 +350,20 @@ public class SFFileManager {
             errorRelay.accept("压缩文件-压缩文件\(file.name)已经存在")
             return false
         }
-        switch file.suffix {
-        case .directory:
-            return SSZipArchive.createZipFile(atPath: newPath, withContentsOfDirectory: file.path)
-        case .excel, .file, .gif, .image, .json, .pdf, .txt, .video, .word:
-            return SSZipArchive.createZipFile(atPath: newPath, withFilesAtPaths: [file.path])
-        case .zip:
+        if !file.canZip {
             errorRelay.accept("压缩文件-压缩文件\(file.name)不能被压缩")
             return false
+        }
+        if file.isDirectory {
+            return SSZipArchive.createZipFile(atPath: newPath, withContentsOfDirectory: file.path)
+        } else {
+            return SSZipArchive.createZipFile(atPath: newPath, withFilesAtPaths: [file.path])
         }
     }
 
     @discardableResult
     public func unzip(_ file: SFFileItem) -> Bool {
-        switch file.suffix {
-        case .zip:
-            break
-        case .directory, .excel, .file, .gif, .image, .json, .pdf, .txt, .video, .word:
+        if file.canZip {
             errorRelay.accept("解压文件-文件\(file.name)不是压缩文件")
             return false
         }

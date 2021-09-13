@@ -36,7 +36,19 @@ class SFFlieListViewModel: SFViewModel {
             suffix = "json"
         case .txt:
             suffix = "txt"
-        case .excel, .file, .gif, .image, .pdf, .video, .word, .zip:
+        case .java:
+            suffix = "java"
+        case .xml:
+            suffix = "xml"
+        case .markdown:
+            suffix = "md"
+        case .swift:
+            suffix = "swift"
+        case .html:
+            suffix = "html"
+        case .javascript:
+            suffix = "js"
+        case .excel, .file, .gif, .image, .pdf, .video, .word, .zip, .apk, .ipa, .xib, .code:
             return
         }
         if SFFileManager.shared.createFile(at: path.addPathComponent(name).addSuffix(suffix)) {

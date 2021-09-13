@@ -49,7 +49,7 @@ class SFWebFileViewController: SFViewController {
             } catch {
                 viewModel.errorRelay.accept("文件\(viewModel.fileName)二进制转换失败")
             }
-        case .directory, .file, .image, .video, .zip, .json, .txt:
+        case .directory, .file, .image, .video, .zip, .json, .txt, .java, .xml, .apk, .ipa, .markdown, .swift, .xib, .html, .code, .javascript:
             break
         }
     }

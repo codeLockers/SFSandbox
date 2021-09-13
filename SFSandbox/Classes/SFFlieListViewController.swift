@@ -124,17 +124,15 @@ class SFFlieListViewController: UIViewController {
         switch file.suffix {
         case .directory:
             routeToDirectory(file)
-        case .txt, .json:
-            routeToText(file)
         case .image:
             routeToImage(file)
         case .pdf, .word, .excel, .gif:
             routeToWeb(file)
         case .video:
             routeToVideo(file)
-        case .zip:
-            break
-        case .file:
+        case .txt, .json, .java, .file, .xml, .markdown, .swift, .html, .code, .javascript:
+            routeToText(file)
+        case .zip, .apk, .ipa, .xib:
             break
         }
     }

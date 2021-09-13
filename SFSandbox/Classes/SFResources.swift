@@ -31,6 +31,16 @@ struct SFResources {
         case play
         case pause
         case slider
+        case java
+        case xml
+        case apk
+        case ipa
+        case markdown
+        case swift
+        case xib
+        case html
+        case code
+        case javascript
 
         var filename: String {
             switch self {
@@ -68,6 +78,26 @@ struct SFResources {
                 return "sf_sandbox_pause"
             case .slider:
                 return "sf_sandbox_slider"
+            case .java:
+                return "sf_sandbox_java"
+            case .xml:
+                return "sf_sandbox_xml"
+            case .apk:
+                return "sf_sandbox_apk"
+            case .ipa:
+                return "sf_sandbox_store"
+            case .markdown:
+                return "sf_sandbox_markdown"
+            case .swift:
+                return "sf_sandbox_swift"
+            case .xib:
+                return "sf_sandbox_xcode"
+            case .html:
+                return "sf_sandbox_html"
+            case .code:
+                return "sf_sandbox_code"
+            case .javascript:
+                return "sf_sandbox_js"
             }
         }
     }

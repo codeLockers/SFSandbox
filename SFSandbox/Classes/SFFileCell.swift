@@ -71,28 +71,48 @@ class SFFileCell: UITableViewCell {
 
     func render(_ file: SFFileManager.SFFileItem) {
         switch file.suffix {
-            case .directory:
-                fileImageView.image = SFResources.image(.directory)
-            case .file:
-                fileImageView.image = SFResources.image(.file)
-            case .image:
-                fileImageView.image = SFResources.image(.image)
-            case .pdf:
-                fileImageView.image = SFResources.image(.pdf)
-            case .video:
-                fileImageView.image = SFResources.image(.video)
-            case .word:
-                fileImageView.image = SFResources.image(.word)
-            case .excel:
-                fileImageView.image = SFResources.image(.excel)
-            case .zip:
-                fileImageView.image = SFResources.image(.zip)
-            case .gif:
-                fileImageView.image = SFResources.image(.gif)
-            case .json:
-                fileImageView.image = SFResources.image(.json)
-            case .txt:
-                fileImageView.image = SFResources.image(.txt)
+        case .directory:
+            fileImageView.image = SFResources.image(.directory)
+        case .file:
+            fileImageView.image = SFResources.image(.file)
+        case .image:
+            fileImageView.image = SFResources.image(.image)
+        case .pdf:
+            fileImageView.image = SFResources.image(.pdf)
+        case .video:
+            fileImageView.image = SFResources.image(.video)
+        case .word:
+            fileImageView.image = SFResources.image(.word)
+        case .excel:
+            fileImageView.image = SFResources.image(.excel)
+        case .zip:
+            fileImageView.image = SFResources.image(.zip)
+        case .gif:
+            fileImageView.image = SFResources.image(.gif)
+        case .json:
+            fileImageView.image = SFResources.image(.json)
+        case .txt:
+            fileImageView.image = SFResources.image(.txt)
+        case .java:
+            fileImageView.image = SFResources.image(.java)
+        case .xml:
+            fileImageView.image = SFResources.image(.xml)
+        case .apk:
+            fileImageView.image = SFResources.image(.apk)
+        case .ipa:
+            fileImageView.image = SFResources.image(.ipa)
+        case .markdown:
+            fileImageView.image = SFResources.image(.markdown)
+        case .swift:
+            fileImageView.image = SFResources.image(.swift)
+        case .xib:
+            fileImageView.image = SFResources.image(.xib)
+        case .html:
+            fileImageView.image = SFResources.image(.html)
+        case .code:
+            fileImageView.image = SFResources.image(.code)
+        case .javascript:
+            fileImageView.image = SFResources.image(.javascript)
         }
         nameLabel.text = file.name
         sizeLabel.text = file.size.fileSizeFormatter()
