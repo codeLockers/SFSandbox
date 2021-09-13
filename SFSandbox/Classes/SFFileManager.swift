@@ -57,6 +57,7 @@ extension SFFileManager {
                 return false
             }
         }
+        var canShare: Bool { !isDirectory }
         private var suffixName: String? { name.components(separatedBy: ".").last }
         var suffix: SFFileSuffix {
             if attributeType == .typeDirectory { return .directory }

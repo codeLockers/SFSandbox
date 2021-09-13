@@ -202,7 +202,13 @@ extension SFFlieListViewController: UITableViewDelegate {
             file.canZip ? viewModel.zip(file) : viewModel.unzip(file)
         }
         zipAction.backgroundColor = file.canZip ? .orange : .brown
-        return UISwipeActionsConfiguration(actions: [deleteAction, renameAction, zipAction])
+
+        let shareAction = UIContextualAction(style: .normal, title: "分享") { [weak self] _, _, _ in
+            self?.share(file)
+        }
+        shareAction.backgroundColor = .purple
+
+        return UISwipeActionsConfiguration(actions: file.canShare ? [deleteAction, renameAction, zipAction, shareAction] : [deleteAction, renameAction, zipAction])
     }
 }
 
@@ -251,5 +257,14 @@ extension SFFlieListViewController {
             }
         }
         alertVc.addAction(confirmAction)
+    }
+
+    private func share(_ file: SFFileManager.SFFileItem) {
+        let url = URL(fileURLWithPath: file.path)
+        let shareVc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        shareVc.completionWithItemsHandler = { [viewModel] type, result, items, error in
+            result ? viewModel.successRelay.accept("分享操作成功") : viewModel.errorRelay.accept("分享操作失败")
+        }
+        self.present(shareVc, animated: true, completion: nil)
     }
 }
