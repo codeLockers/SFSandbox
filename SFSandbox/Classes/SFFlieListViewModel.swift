@@ -12,9 +12,10 @@ import RxCocoa
 class SFFlieListViewModel: SFViewModel {
     let itemsRelay = BehaviorRelay<[SFFileManager.SFFileItem]>(value: [])
     var items: [SFFileManager.SFFileItem] { itemsRelay.value }
+    private var searchKeyword: String = ""
 
     func refresh() {
-        let items = SFFileManager.shared.listItems(at: path) ?? []
+        let items = SFFileManager.shared.listItems(at: path)?.filter { searchKeyword.isEmpty || $0.name.contains(searchKeyword) } ?? []
         itemsRelay.accept(items)
     }
 
@@ -86,5 +87,10 @@ class SFFlieListViewModel: SFViewModel {
         } else {
             errorRelay.accept("解压文件\(file.name)失败")
         }
+    }
+
+    func search(keyword: String) {
+        self.searchKeyword = keyword
+        refresh()
     }
 }

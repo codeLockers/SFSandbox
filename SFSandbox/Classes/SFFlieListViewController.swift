@@ -59,6 +59,13 @@ class SFFlieListViewController: UIViewController {
         return button
     }()
 
+    private lazy var searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.searchTextField.font = UIFont.systemFont(ofSize: 13)
+        searchBar.placeholder = "输入搜索的文件名"
+        return searchBar
+    }()
+
     private let disposeBag = DisposeBag()
     private let viewModel: SFFlieListViewModel
     private let dismissStyle: DismissStyle
@@ -79,9 +86,15 @@ class SFFlieListViewController: UIViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: dismissButton)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: createButton)
         navigationItem.title = viewModel.fileName
+        view.addSubview(searchBar)
+        searchBar.snp.makeConstraints { make in
+            make.left.right.equalToSuperview()
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+        }
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.top.equalTo(searchBar.snp.bottom)
+            make.left.right.bottom.equalToSuperview()
         }
         handleRxBindings()
     }
@@ -118,6 +131,13 @@ class SFFlieListViewController: UIViewController {
             guard let fileItem = self?.viewModel.itemsRelay.value[indexPath.row] else { return }
             self?.route(to: fileItem)
         }.disposed(by: disposeBag)
+        searchBar.rx.text.orEmpty
+            .skip(1)
+            .debounce(.milliseconds(300), scheduler: MainScheduler.instance)
+            .distinctUntilChanged()
+            .bind { [viewModel] text in
+                viewModel.search(keyword: text)
+            }.disposed(by: disposeBag)
     }
 
     private func route(to file: SFFileManager.SFFileItem) {
@@ -185,7 +205,7 @@ extension SFFlieListViewController: UITableViewDelegate {
 
 extension SFFlieListViewController {
     private func triggerCreateFileSheet() {
-        let supportFiles: [SFFileManager.SFFileSuffix] = [.directory, .json, .txt]
+        let supportFiles: [SFFileManager.SFFileSuffix] = [.directory, .json, .txt, .html, .java, .javascript, .markdown, .swift, .xml]
         let sheetVc = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         let cancelAction = UIAlertAction(title: "取消", style: .cancel, handler: nil)
         sheetVc.addAction(cancelAction)

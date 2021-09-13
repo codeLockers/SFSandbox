@@ -97,7 +97,7 @@ extension SFFileManager {
                 return .html
             } else if suffix == "h" || suffix == "m" || suffix == "c" {
                 return .code
-            } else if suffix == "javascript" {
+            } else if suffix == "js" {
                 return .javascript
             } else {
                 return .file

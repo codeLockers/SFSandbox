@@ -16,7 +16,6 @@ public class SFSandbox {
 
     private let entranceButton = EntranceButton()
     private lazy var rootViewController: SFNavigationViewController = {
-        print("🐟🐟 = \(SFFileManager.Path.root.path)")
         let file = SFFileManager.SFFileItem(path: SFFileManager.Path.root.path ?? "",
                                             name: "",
                                             size: 0,
