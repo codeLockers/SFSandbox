@@ -59,6 +59,14 @@ class SFFlieListViewController: UIViewController {
         return button
     }()
 
+    private lazy var userDefaultsButton: UIButton = {
+        let button = UIButton(frame: CGRect(x: 0, y: 0, width: 60, height: 44))
+        button.setTitle("UserDefaults", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 13)
+        return button
+    }()
+
     private lazy var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.searchTextField.font = UIFont.systemFont(ofSize: 13)
@@ -84,7 +92,7 @@ class SFFlieListViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: dismissButton)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: createButton)
+        navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: createButton), UIBarButtonItem(customView: userDefaultsButton)]
         navigationItem.title = viewModel.fileName
         view.addSubview(searchBar)
         searchBar.snp.makeConstraints { make in
@@ -117,6 +125,9 @@ class SFFlieListViewController: UIViewController {
         }.disposed(by: disposeBag)
         createButton.rx.tap.bind { [weak self] in
             self?.triggerCreateFileSheet()
+        }.disposed(by: disposeBag)
+        userDefaultsButton.rx.tap.bind { [weak self] in
+            self?.routeToUserDefaults()
         }.disposed(by: disposeBag)
         viewModel.itemsRelay.bind(to: tableView.rx.items) { (tableView, _, element) in
             guard let cell = tableView.dequeueReusableCell(withIdentifier: SFFileCell.reuseIdentifier) as? SFFileCell
@@ -183,6 +194,16 @@ class SFFlieListViewController: UIViewController {
     private func routeToVideo(_ video: SFFileManager.SFFileItem) {
         let videoVc = SFVideoFileViewController(file: video)
         navigationController?.pushViewController(videoVc, animated: true)
+    }
+
+    private func routeToUserDefaults() {
+        let userDetaultsFile = SFFileManager.SFFileItem(path: "",
+                                                        name: "UserDefaults",
+                                                        size: 0,
+                                                        attributeType: .typeUnknown,
+                                                        modificationDate: nil)
+        let userDefaultsVc = SFUserDefaultsViewController(file: userDetaultsFile)
+        navigationController?.pushViewController(userDefaultsVc, animated: true)
     }
 }
 

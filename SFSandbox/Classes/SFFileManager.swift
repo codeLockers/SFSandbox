@@ -411,6 +411,19 @@ extension String {
     public var lastComponentToastName: String {
         return lastComponent ?? "未知"
     }
+
+    public var isInteger: Bool {
+        let scan = Scanner(string: self)
+        var result: Int = 0
+        return scan.scanInt(&result) && scan.isAtEnd
+    }
+
+    public var isDecimals: Bool {
+        let scan = Scanner(string: self)
+        var result: Float = 0.0
+        let isDecimals = scan.scanFloat(&result) && scan.isAtEnd
+        return isDecimals && !isInteger
+    }
 }
 
 extension Int {

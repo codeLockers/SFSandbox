@@ -41,6 +41,8 @@ struct SFResources {
         case html
         case code
         case javascript
+        case checked
+        case unchecked
 
         var filename: String {
             switch self {
@@ -98,6 +100,10 @@ struct SFResources {
                 return "sf_sandbox_code"
             case .javascript:
                 return "sf_sandbox_js"
+            case .checked:
+                return "sf_sandbox_checked"
+            case .unchecked:
+                return "sf_sandbox_unchecked"
             }
         }
     }
