@@ -55,12 +55,12 @@ class SFUserDefaultsViewModel: SFViewModel {
     func refreshAllDatas() {
         let dic = userDefaults.dictionaryRepresentation()
         let items = dic.map { key, value -> Item in
-            return Item(key: key, value: value, type: dataType(value))
+            return Item(key: key, value: value, type: dataType(value, for: key))
         }.sorted { $0.key.uppercased() < $1.key.uppercased() }
         itemsRelay.accept(items)
     }
 
-    private func dataType(_ value: Any?) -> ItemType {
+    private func dataType(_ value: Any?, for key: String) -> ItemType {
         guard let data = value else { return .unknow }
         if data is Bool {
             return .bool
@@ -73,6 +73,7 @@ class SFUserDefaultsViewModel: SFViewModel {
         } else if data is String {
             return .string
         } else if data is Data {
+            if userDefaults.url(forKey: key) != nil { return .url }
             return .data
         } else if data is URL {
             return .url

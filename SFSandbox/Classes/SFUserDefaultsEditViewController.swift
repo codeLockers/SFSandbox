@@ -100,17 +100,13 @@ class SFUserDefaultsEditViewController: UIViewController {
         switch item.type {
         case .bool:
             renderBoolStyle()
-        case .number:
+        case .number, .url, .string:
             renderInputStyle()
         case .array:
             break
         case .dictionary:
             break
-        case .string:
-            renderInputStyle()
         case .data:
-            break
-        case .url:
             break
         case .unknow:
             break
@@ -156,8 +152,34 @@ class SFUserDefaultsEditViewController: UIViewController {
         inputTextView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        inputTextView.text = "\(item.value ?? "")"
-        inputTextView.keyboardType = .decimalPad
+        switch item.type {
+        case .bool, .unknow:
+            break
+        case .number:
+            inputTextView.text = "\(item.value ?? "")"
+            inputTextView.isEditable = true
+            inputTextView.keyboardType = .decimalPad
+        case .array:
+            break
+        case .dictionary:
+            break
+        case .string:
+            inputTextView.text = item.value as? String
+            inputTextView.isEditable = true
+            inputTextView.keyboardType = .default
+        case .url:
+            guard
+                let link = UserDefaults.standard.url(forKey: item.key)?.absoluteString,
+                !link.isEmpty
+            else { return }
+            let attributeString = NSMutableAttributedString(string: link, attributes: [.font: UIFont.systemFont(ofSize: 20)])
+            attributeString.addAttribute(.link, value: link, range: NSRange(location: 0, length: link.count))
+            inputTextView.attributedText = attributeString
+            inputTextView.isEditable = true
+            inputTextView.keyboardType = .default
+        case .data:
+            break
+        }
     }
 
     private func save() {
@@ -186,11 +208,15 @@ class SFUserDefaultsEditViewController: UIViewController {
         case .dictionary:
             break
         case .string:
-            break
+            UserDefaults.standard.set(inputTextView.text, forKey: item.key)
+            UserDefaults.standard.synchronize()
+            successRelay.accept("保存成功")
         case .data:
             break
         case .url:
-            break
+            UserDefaults.standard.set(URL(string: inputTextView.text), forKey: item.key)
+            UserDefaults.standard.synchronize()
+            successRelay.accept("保存成功")
         case .unknow:
             break
         }
