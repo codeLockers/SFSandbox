@@ -10,13 +10,22 @@ import SnapKit
 import RxSwift
 import RxCocoa
 
-class SFUserDefaultsViewController: SFViewController, UIScrollViewDelegate {
+class SFUserDefaultsViewController: SFFileViewController, UIScrollViewDelegate {
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.register(SFUserDefaultsCell.self, forCellReuseIdentifier: SFUserDefaultsCell.reuseIdentifier)
         tableView.tableFooterView = UIView()
         tableView.rowHeight = 60
         return tableView
+    }()
+
+    private lazy var createButton: UIButton = {
+        let button = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 0)
+        button.setTitle("新建", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 13)
+        return button
     }()
 
     private var flatViewModel: SFUserDefaultsViewModel? { self.viewModel as? SFUserDefaultsViewModel }
@@ -32,6 +41,7 @@ class SFUserDefaultsViewController: SFViewController, UIScrollViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: createButton)]
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -59,6 +69,9 @@ class SFUserDefaultsViewController: SFViewController, UIScrollViewDelegate {
             guard let item = self?.flatViewModel?.items[indexPath.row] else { return }
             let editVc = SFUserDefaultsEditViewController(item: item)
             self?.navigationController?.pushViewController(editVc, animated: true)
+        }.disposed(by: disposeBag)
+        createButton.rx.tap.bind { [navigationController] in
+            
         }.disposed(by: disposeBag)
     }
 }

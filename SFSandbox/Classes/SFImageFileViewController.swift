@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SFImageFileViewController: SFViewController {
+class SFImageFileViewController: SFFileViewController {
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
@@ -28,6 +28,7 @@ class SFImageFileViewController: SFViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
+        navigationItem.title = flatViewModel?.fileName
         view.addSubview(imageView)
         imageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()

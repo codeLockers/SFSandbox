@@ -45,21 +45,12 @@ class SFViewController: UIViewController {
     }()
 
     let disposeBag = DisposeBag()
-    var viewModel: SFViewModelProtocol?
-
-    init(file: SFFileManager.SFFileItem) {
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    var viewModel: SFViewModel?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: dismissButton)
-        navigationItem.title = viewModel?.fileName
         dismissButton.rx.tap.bind { [navigationController] in
             navigationController?.popViewController(animated: true)
         }.disposed(by: disposeBag)
@@ -73,5 +64,15 @@ class SFViewController: UIViewController {
         viewModel.isLoadingRelay.bind { [weak self] isLoading in
             isLoading ? self?.startLoading() : self?.stopLoading()
         }.disposed(by: disposeBag)
+    }
+}
+
+class SFFileViewController: SFViewController {
+    init(file: SFFileManager.SFFileItem) {
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

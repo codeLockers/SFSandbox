@@ -9,7 +9,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class SFTextFileViewController: SFViewController {
+class SFTextFileViewController: SFFileViewController {
     private lazy var saveButton: UIButton = {
         let button = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 0)
@@ -41,6 +41,7 @@ class SFTextFileViewController: SFViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButton)
+        navigationItem.title = flatViewModel?.fileName
         view.addSubview(textView)
         textView.snp.makeConstraints { make in
             make.edges.equalToSuperview()

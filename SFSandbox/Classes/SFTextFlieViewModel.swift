@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class SFTextFlieViewModel: SFViewModel {
+class SFTextFlieViewModel: SFFileViewModel {
     let contentRelay = BehaviorRelay<String?>(value: nil)
     let writeSuccessRelay = BehaviorRelay<Bool?>(value: nil)
 

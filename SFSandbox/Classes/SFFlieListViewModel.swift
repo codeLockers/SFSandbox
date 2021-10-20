@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class SFFlieListViewModel: SFViewModel {
+class SFFlieListViewModel: SFFileViewModel {
     let itemsRelay = BehaviorRelay<[SFFileManager.SFFileItem]>(value: [])
     var items: [SFFileManager.SFFileItem] { itemsRelay.value }
     private var searchKeyword: String = ""

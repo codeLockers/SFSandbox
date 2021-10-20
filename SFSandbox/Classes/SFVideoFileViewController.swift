@@ -10,7 +10,7 @@ import AVFoundation
 import RxSwift
 import RxCocoa
 
-class SFVideoFileViewController: SFViewController {
+class SFVideoFileViewController: SFFileViewController {
 
     private lazy var progressBar: VideoProgressBar = {
         let bar = VideoProgressBar()
@@ -32,6 +32,7 @@ class SFVideoFileViewController: SFViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.title = flatViewModel?.fileName
         startLoadingVideo()
         view.backgroundColor = .black
         view.addSubview(progressBar)
@@ -65,10 +66,11 @@ class SFVideoFileViewController: SFViewController {
         playerItem?.rx.observe(AVPlayer.Status.self, "status")
             .compactMap { $0 }
             .distinctUntilChanged()
-            .bind { [viewModel, player] status in
+            .bind { [weak self, player] status in
+                guard let self = self else { return }
                 switch status {
                 case .failed:
-                    viewModel?.errorRelay.accept("视频\(viewModel?.fileName ?? "")播放失败")
+                    self.flatViewModel?.errorRelay.accept("视频\(self.flatViewModel?.fileName ?? "")播放失败")
                 case .readyToPlay:
                     player?.play()
                 case .unknown:

@@ -9,7 +9,7 @@ import UIKit
 import RxCocoa
 import RxSwift
 
-class SFUserDefaultsViewModel: SFViewModel {
+class SFUserDefaultsViewModel: SFFileViewModel {
     enum ItemType {
         case number
         case bool

@@ -7,7 +7,7 @@
 
 import Foundation
 
-class SFImageFlieViewModel: SFViewModel {
+class SFImageFlieViewModel: SFFileViewModel {
     var image: UIImage? {
         guard let path = self.path, !path.isEmpty else {
             errorRelay.accept("图片\(fileName)路径为空")

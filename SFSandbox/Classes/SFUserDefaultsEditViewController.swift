@@ -9,7 +9,7 @@ import UIKit
 import RxCocoa
 import RxSwift
 
-class SFUserDefaultsEditViewController: UIViewController {
+class SFUserDefaultsEditViewController: SFViewController {
     private lazy var dismissButton: UIButton = {
         let button = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 30)
@@ -45,13 +45,11 @@ class SFUserDefaultsEditViewController: UIViewController {
     }()
     
     private let item: SFUserDefaultsViewModel.Item
-    private let disposeBag = DisposeBag()
-    private let errorRelay = BehaviorRelay<String?>(value: nil)
-    private let successRelay = BehaviorRelay<String?>(value: nil)
 
     init(item: SFUserDefaultsViewModel.Item) {
         self.item = item
         super.init(nibName: nil, bundle: nil)
+        self.viewModel = SFViewModel()
     }
 
     required init?(coder: NSCoder) {
@@ -75,13 +73,8 @@ class SFUserDefaultsEditViewController: UIViewController {
         saveButton.rx.tap.bind { [weak self] in
             self?.save()
         }.disposed(by: disposeBag)
-        Observable.merge(
-            errorRelay.compactMap { $0 }.map { .fail($0) },
-            successRelay.compactMap { $0 }.map { .success($0) }
-        )
-        .bind(to: SFToastManager.shared.toast)
-        .disposed(by: disposeBag)
-        Observable.merge(errorRelay.asObservable(), successRelay.asObservable())
+        guard let viewModel = self.viewModel else { return }
+        Observable.merge(viewModel.errorRelay.asObservable(), viewModel.successRelay.asObservable())
             .bind { [weak self] _ in
                 guard let self = self else { return }
                 UIApplication.shared
@@ -187,10 +180,10 @@ class SFUserDefaultsEditViewController: UIViewController {
         case .bool:
             UserDefaults.standard.set(trueCheckbox.isSelected, forKey: item.key)
             UserDefaults.standard.synchronize()
-            successRelay.accept("保存成功")
+            viewModel?.successRelay.accept("保存成功")
         case .number:
             guard let value = inputTextView.text, !value.isEmpty else {
-                errorRelay.accept("保存失败-数据不能为空")
+                viewModel?.errorRelay.accept("保存失败-数据不能为空")
                 return
             }
             if value.isInteger, let data = Int(value) {
@@ -198,11 +191,11 @@ class SFUserDefaultsEditViewController: UIViewController {
             } else if value.isDecimals, let data = Double(value) {
                 UserDefaults.standard.set(data, forKey: item.key)
             } else {
-                errorRelay.accept("保存失败-数据不是正确的数值")
+                viewModel?.errorRelay.accept("保存失败-数据不是正确的数值")
                 return
             }
             UserDefaults.standard.synchronize()
-            successRelay.accept("保存成功")
+            viewModel?.successRelay.accept("保存成功")
         case .array:
             break
         case .dictionary:
@@ -210,13 +203,13 @@ class SFUserDefaultsEditViewController: UIViewController {
         case .string:
             UserDefaults.standard.set(inputTextView.text, forKey: item.key)
             UserDefaults.standard.synchronize()
-            successRelay.accept("保存成功")
+            viewModel?.successRelay.accept("保存成功")
         case .data:
             break
         case .url:
             UserDefaults.standard.set(URL(string: inputTextView.text), forKey: item.key)
             UserDefaults.standard.synchronize()
-            successRelay.accept("保存成功")
+            viewModel?.successRelay.accept("保存成功")
         case .unknow:
             break
         }

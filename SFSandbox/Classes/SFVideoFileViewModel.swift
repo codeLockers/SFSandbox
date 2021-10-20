@@ -8,7 +8,7 @@
 import UIKit
 import AVFoundation
 
-class SFVideoFileViewModel: SFViewModel {
+class SFVideoFileViewModel: SFFileViewModel {
     var videoUrl: URL? {
         guard let path = self.path, !path.isEmpty else {
             errorRelay.accept("视频\(fileName)文件地址为空")
