@@ -81,4 +81,10 @@ class SFUserDefaultsViewModel: SFViewModel {
             return .unknow
         }
     }
+
+    func delete(_ item: Item) {
+        userDefaults.removeObject(forKey: item.key)
+        userDefaults.synchronize()
+        refreshAllDatas()
+    }
 }

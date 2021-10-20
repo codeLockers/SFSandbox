@@ -66,7 +66,8 @@ class SFUserDefaultsViewController: SFViewController, UIScrollViewDelegate {
 extension SFUserDefaultsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         guard let item = flatViewModel?.items[indexPath.row] else { return nil }
-        let deleteAction = UIContextualAction(style: .destructive, title: "删除") { [viewModel] _, _, _ in
+        let deleteAction = UIContextualAction(style: .destructive, title: "删除") { [flatViewModel] _, _, _ in
+            flatViewModel?.delete(item)
         }
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
